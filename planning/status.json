@@ -1,36 +1,36 @@
 {
   "features": {
     "F-001": {
-      "status": "todo",
-      "owner": "",
-      "branch": "",
-      "pr": "",
-      "updated": "",
-      "history": []
+      "status": "done",
+      "owner": "agent",
+      "branch": "chore/F-001-postgres-18-migration",
+      "pr": "merged",
+      "updated": "2026-11-21",
+      "history": [{"status": "done", "note": "PostgreSQL 18 migration completed"}]
     },
     "F-002": {
-      "status": "todo",
-      "owner": "",
-      "branch": "",
-      "pr": "",
-      "updated": "",
-      "history": []
+      "status": "done",
+      "owner": "agent",
+      "branch": "chore/F-002-ci-hardening",
+      "pr": "merged",
+      "updated": "2026-11-21",
+      "history": [{"status": "done", "note": "CI hardening and starter kit adopted"}]
     },
     "F-003": {
-      "status": "todo",
-      "owner": "",
-      "branch": "",
-      "pr": "",
-      "updated": "",
-      "history": []
+      "status": "done",
+      "owner": "agent",
+      "branch": "fix/F-003-dependency-security-bump",
+      "pr": "merged",
+      "updated": "2026-11-21",
+      "history": [{"status": "done", "note": "fastapi/starlette bumped, waiver removed"}]
     },
     "F-004": {
-      "status": "todo",
-      "owner": "",
-      "branch": "",
-      "pr": "",
-      "updated": "",
-      "history": []
+      "status": "done",
+      "owner": "agent",
+      "branch": "refactor/F-004-core-purity-httpx",
+      "pr": "merged",
+      "updated": "2026-11-21",
+      "history": [{"status": "done", "note": "core models pure, httpx removed"}]
     },
     "F-005": {
       "status": "todo",
