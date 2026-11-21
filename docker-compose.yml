@@ -19,13 +19,13 @@ services:
       start_period: 20s
 
   postgres:
-    image: postgres:16.8-alpine
+    image: postgres:18-alpine
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-fuel}
       POSTGRES_USER: ${POSTGRES_USER:-fuel}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fuel-local}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
       - ./backend/api/db.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
     healthcheck:
       test: [CMD-SHELL, "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
