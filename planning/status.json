@@ -33,28 +33,28 @@
       "history": [{"status": "done", "note": "core models pure, httpx removed"}]
     },
     "F-005": {
-      "status": "todo",
-      "owner": "",
-      "branch": "",
-      "pr": "",
-      "updated": "",
-      "history": []
+      "status": "done",
+      "owner": "agent",
+      "branch": "feat/F-005-live-dispatch-acceptance",
+      "pr": "merged",
+      "updated": "2026-11-21",
+      "history": [{"status": "done", "note": "Live dispatch acceptance, lifecycle and replay verified"}]
     },
     "F-010": {
-      "status": "todo",
-      "owner": "",
-      "branch": "",
-      "pr": "",
-      "updated": "",
-      "history": []
+      "status": "done",
+      "owner": "agent",
+      "branch": "feat/F-010-preflight-hardening",
+      "pr": "merged",
+      "updated": "2026-11-21",
+      "history": [{"status": "done", "note": "Pre-flight hardened: route disruption events, in-flight headroom, net inventory"}]
     },
     "F-006": {
-      "status": "todo",
-      "owner": "",
-      "branch": "",
-      "pr": "",
-      "updated": "",
-      "history": []
+      "status": "done",
+      "owner": "agent",
+      "branch": "feat/F-006-predictor-fallback",
+      "pr": "merged",
+      "updated": "2026-11-21",
+      "history": [{"status": "done", "note": "Predictor service, circuit breaker and in-process fallback operational"}]
     },
     "F-007": {
       "status": "todo",
@@ -113,12 +113,12 @@
       "history": []
     },
     "F-018": {
-      "status": "todo",
-      "owner": "",
-      "branch": "",
-      "pr": "",
-      "updated": "",
-      "history": []
+      "status": "done",
+      "owner": "agent",
+      "branch": "test/F-018-e2e-playwright-journeys",
+      "pr": "merged",
+      "updated": "2026-11-21",
+      "history": [{"status": "done", "note": "Playwright configuration and E2E journeys added"}]
     },
     "F-014": {
       "status": "todo",
