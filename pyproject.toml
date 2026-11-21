@@ -2,7 +2,7 @@
 testpaths = ["tests"]
 asyncio_mode = "auto"
 addopts = "-ra"
-pythonpath = [".", "backend", "backend/shared", "intel/predictor"]
+pythonpath = [".", "scripts", "backend", "backend/shared", "intel/predictor"]
 asyncio_default_fixture_loop_scope = "function"
 markers = [
     "db: tests that require a live postgres database",

@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import asyncio
 from unittest.mock import MagicMock
 
 import httpx
 import pytest
 
 from core.models import FuelType, Snapshot
-from core.sim_client import SimulatorClient, SimulatorError
+from core.sim_client import SimClient, SimInvalidResponse, SimUnavailable
 from worker.forecaster import RemoteForecastError, RemoteForecaster
 
 
@@ -37,7 +38,6 @@ async def test_fault_matrix_predictor_5xx_opens_circuit_breaker():
         await forecaster.forecast(snap, station, fuel, seed=1)
     assert exc2.value.reason == "predictor_5xx"
 
-    # Circuit breaker is now open
     with pytest.raises(RemoteForecastError) as exc3:
         await forecaster.forecast(snap, station, fuel, seed=1)
     assert exc3.value.reason == "breaker_open"
@@ -49,10 +49,15 @@ async def test_fault_matrix_simulator_503_raises_transient_error():
     mock_transport = httpx.MockTransport(
         lambda request: httpx.Response(503, json={"error": "temporarily unavailable"})
     )
-    client = SimulatorClient("http://sim:8000", transport=mock_transport)
-    with pytest.raises(SimulatorError) as exc:
-        await client.get_instance()
-    assert exc.value.status_code == 503
+    async with httpx.AsyncClient(transport=mock_transport) as http:
+        client = SimClient(
+            "http://sim:8000",
+            http_client=http,
+            max_retries=1,
+            sleep=lambda _: asyncio.sleep(0),
+        )
+        with pytest.raises(SimUnavailable):
+            await client.get_instance()
 
 
 @pytest.mark.asyncio
@@ -61,9 +66,15 @@ async def test_fault_matrix_malformed_payload_rejected_cleanly():
     mock_transport = httpx.MockTransport(
         lambda request: httpx.Response(200, content=b"invalid json { {")
     )
-    client = SimulatorClient("http://sim:8000", transport=mock_transport)
-    with pytest.raises(SimulatorError):
-        await client.get_instance()
+    async with httpx.AsyncClient(transport=mock_transport) as http:
+        client = SimClient(
+            "http://sim:8000",
+            http_client=http,
+            max_retries=1,
+            sleep=lambda _: asyncio.sleep(0),
+        )
+        with pytest.raises((SimInvalidResponse, SimUnavailable)):
+            await client.get_instance()
 
 
 @pytest.mark.asyncio
@@ -73,8 +84,13 @@ async def test_fault_matrix_timeout_classified_as_unavailable():
         raise httpx.ReadTimeout("timed out")
 
     mock_transport = httpx.MockTransport(timeout_handler)
-    client = SimulatorClient("http://sim:8000", transport=mock_transport)
-    with pytest.raises(SimulatorError) as exc:
-        await client.get_instance()
-    assert exc.value.status_code == 504
+    async with httpx.AsyncClient(transport=mock_transport) as http:
+        client = SimClient(
+            "http://sim:8000",
+            http_client=http,
+            max_retries=1,
+            sleep=lambda _: asyncio.sleep(0),
+        )
+        with pytest.raises(SimUnavailable):
+            await client.get_instance()
 

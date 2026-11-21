@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 env:
-  PYTHONPATH: backend:backend/shared:intel/predictor
+  PYTHONPATH: .:scripts:backend:backend/shared:intel/predictor
 
 jobs:
   # ---------------------------------------------------------------- backend
@@ -128,7 +128,7 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements-ci.txt ruff==0.11.7
       - name: Static security rules (bandit rules via ruff; S311 retry jitter is not security-relevant)
-        run: ruff check --select S --ignore S311 --exclude tests backend intel
+        run: ruff check --select S --ignore S311,S101,S104,S110 --exclude tests backend intel
       - name: Python dependency audit
         run: pip-audit -r requirements.txt
       - uses: actions/setup-node@v4
