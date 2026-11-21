@@ -16,3 +16,4 @@
    - Submitting an identical key and body replays seamlessly without allocating duplicate fuel.
    - Key mismatch or altered body on existing key is safely rejected with `IDEMPOTENCY_KEY_MISMATCH`.
 3. Extended executor unit test suite in `tests/unit/test_executor.py` achieving >95% code coverage.
+

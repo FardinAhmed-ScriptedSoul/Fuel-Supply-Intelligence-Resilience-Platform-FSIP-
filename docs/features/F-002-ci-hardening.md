@@ -13,3 +13,4 @@
 4. Appended developer convenience targets to `Makefile`.
 5. Updated `pyproject.toml` with `target-version = "py312"` and explicit pytest markers (`db`, `sim`, `acceptance`, `slow`).
 6. Fixed flaky wall-clock assertion in `tests/unit/test_risk.py::test_all_twelve_pairs_complete_under_fifty_milliseconds` with a generous bound (500ms).
+

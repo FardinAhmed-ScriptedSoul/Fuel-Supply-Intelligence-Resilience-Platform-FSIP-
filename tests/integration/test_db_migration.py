@@ -7,13 +7,13 @@ def test_schema_sql_is_idempotent():
     sql_path = Path(__file__).resolve().parents[2] / "backend" / "api" / "db.sql"
     assert sql_path.exists(), f"Schema file not found at {sql_path}"
     content = sql_path.read_text(encoding="utf-8")
-    
+
     # Assert every CREATE TABLE has IF NOT EXISTS
     table_lines = [line.strip() for line in content.splitlines() if line.strip().upper().startswith("CREATE TABLE")]
     assert len(table_lines) > 0
     for line in table_lines:
         assert "IF NOT EXISTS" in line.upper(), f"Table creation missing IF NOT EXISTS: {line}"
-        
+
     # Assert every CREATE INDEX has IF NOT EXISTS
     index_lines = [line.strip() for line in content.splitlines() if line.strip().upper().startswith("CREATE INDEX") or line.strip().upper().startswith("CREATE UNIQUE INDEX")]
     assert len(index_lines) > 0
@@ -28,3 +28,4 @@ def test_docker_compose_uses_postgres_18():
     content = compose_path.read_text(encoding="utf-8")
     assert "postgres:18" in content
     assert "postgres_data:/var/lib/postgresql" in content
+

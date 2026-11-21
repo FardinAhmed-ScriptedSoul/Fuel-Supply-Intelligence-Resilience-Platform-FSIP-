@@ -18,3 +18,4 @@
    - Half-open probing after `reset_after_s` (10s).
    - Transparent in-process fallback via `InProcessForecaster` using identical core intelligence models (`core.risk.forecast_pair`).
 3. Integration and unit tests in `tests/integration/test_predictor.py` and `tests/unit/test_forecast_job.py`.
+

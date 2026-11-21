@@ -12,3 +12,4 @@
 3. Updated unit test import in `tests/unit/test_models.py`.
 4. Removed the temporary ignore rule (`core.models -> httpx`) from `.importlinter`.
 5. Pure core contract is now 100% strictly enforced across all core modules.
+

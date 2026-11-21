@@ -11,3 +11,4 @@
 2. Updated volume mount path to `/var/lib/postgresql` as required by PostgreSQL 18 container layout.
 3. Verified `backend/api/db.sql` schema idempotency (all `CREATE TABLE IF NOT EXISTS` and `CREATE INDEX IF NOT EXISTS`).
 4. Added integration tests in `tests/integration/test_db_migration.py`.
+
