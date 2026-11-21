@@ -128,9 +128,6 @@ jobs:
       - name: Static security rules (bandit rules via ruff; S311 retry jitter is not security-relevant)
         run: ruff check --select S --ignore S311 --exclude tests backend intel
       - name: Python dependency audit
-        # TEMPORARY WAIVER (owner: backend lead, expires with F-003): baseline has 14 starlette advisories.
-        # Remove continue-on-error once fastapi/starlette are bumped.
-        continue-on-error: true
         run: pip-audit -r requirements.txt
       - uses: actions/setup-node@v4
         with:
