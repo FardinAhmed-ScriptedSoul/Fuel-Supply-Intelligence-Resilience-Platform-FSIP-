@@ -204,5 +204,97 @@ async def test_existing_key_with_different_body_is_not_recorded_as_success() -> 
     assert "IDEMPOTENCY_KEY_MISMATCH" in store.rows[0]["failure_reason"]
 
 
+@pytest.mark.asyncio
+async def test_allocation_lifecycle_transitions_to_arrived() -> None:
+    """Verify recommendation follows APPROVED -> SUBMITTED -> IN_TRANSIT -> ARRIVED."""
+    snapshot = snapshot_fixture()
+    store = MemoryExecutorStore(recommendation("APPROVED"))
+    
+    # 1. First execution: SUBMITTED
+    alloc_pending = Allocation.model_validate({
+        "id": 99,
+        "idempotency_key": "rec-executor-test",
+        "source_depot_id": "depot-gazipur",
+        "destination_station_id": "station-mirpur",
+        "route_id": "route-gazipur-mirpur",
+        "fuel_type": "DIESEL",
+        "quantity": 3000,
+        "created_tick": snapshot.instance.tick,
+        "status": "PENDING",
+    })
+    client = FakeSimClient([alloc_pending])
+    executor = Executor(store, client, lambda: _resolved(snapshot))
+    await executor.run_once()
+    assert store.rows[0]["status"] == "SUBMITTED"
+    assert store.rows[0]["sim_allocation_id"] == 99
+
+    # 2. Next tick: allocation becomes IN_TRANSIT
+    alloc_transit = Allocation.model_validate({
+        **alloc_pending.model_dump(),
+        "status": "IN_TRANSIT",
+        "departure_tick": snapshot.instance.tick + 1,
+    })
+    snapshot.allocations = [alloc_transit]
+    await executor.run_once()
+    assert store.rows[0]["status"] == "IN_TRANSIT"
+
+    # 3. Allocation arrives: ARRIVED
+    alloc_arrived = Allocation.model_validate({
+        **alloc_pending.model_dump(),
+        "status": "ARRIVED",
+        "actual_arrival_tick": snapshot.instance.tick + 3,
+    })
+    snapshot.allocations = [alloc_arrived]
+    await executor.run_once()
+    assert store.rows[0]["status"] == "ARRIVED"
+
+
+@pytest.mark.asyncio
+async def test_invalid_stored_body_marks_failed() -> None:
+    """Verify malformed stored request body fails cleanly."""
+    snapshot = snapshot_fixture()
+    row = recommendation()
+    row["request_body"] = "not-json"
+    store = MemoryExecutorStore(row)
+    client = FakeSimClient([])
+    executor = Executor(store, client, lambda: _resolved(snapshot))
+
+    await executor.run_once()
+    assert store.rows[0]["status"] == "FAILED"
+    assert "stored request is invalid" in store.rows[0]["failure_reason"]
+
+
+@pytest.mark.asyncio
+async def test_idempotency_key_mismatch_in_row_marks_failed() -> None:
+    """Verify mismatched row idempotency_key fails without POST."""
+    snapshot = snapshot_fixture()
+    row = recommendation()
+    row["idempotency_key"] = "mismatched-key"
+    store = MemoryExecutorStore(row)
+    client = FakeSimClient([])
+    executor = Executor(store, client, lambda: _resolved(snapshot))
+
+    await executor.run_once()
+    assert store.rows[0]["status"] == "FAILED"
+    assert "mismatch" in store.rows[0]["failure_reason"]
+    assert client.bodies == []
+
+
+@pytest.mark.asyncio
+async def test_snapshot_fetch_exception_is_handled_gracefully() -> None:
+    """Verify snapshot fetch exception doesn't crash executor."""
+    async def _failing_snapshot():
+        raise RuntimeError("network failure during snapshot fetch")
+
+    store = MemoryExecutorStore(recommendation())
+    client = FakeSimClient([])
+    executor = Executor(store, client, _failing_snapshot)
+
+    # Should not raise exception
+    await executor.run_once()
+    assert store.rows[0]["status"] == "APPROVED"  # unmodified
+
+
+
 async def _resolved(snapshot: Snapshot) -> Snapshot:
     return snapshot
