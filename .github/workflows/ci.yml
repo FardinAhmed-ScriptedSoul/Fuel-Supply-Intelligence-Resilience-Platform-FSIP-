@@ -37,7 +37,7 @@ jobs:
         run: lint-imports
       - name: Unit + scenario-contract tests with coverage
         run: pytest tests/unit tests/scenarios -q --cov=backend --cov-report=term-missing --cov-report=xml
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: coverage-xml
@@ -188,7 +188,7 @@ jobs:
           npm ci --prefix web
           npx --prefix web playwright install --with-deps chromium
           npm --prefix web run e2e
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always() && steps.detect.outputs.present == 'true'
         with:
           name: playwright-report
