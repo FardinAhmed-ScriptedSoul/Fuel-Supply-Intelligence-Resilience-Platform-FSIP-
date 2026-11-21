@@ -6,7 +6,6 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 
-from httpx import Response
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -268,38 +267,3 @@ class SimulatorError(ContractModel):
     code: str
     message: str
     detail: Optional[Any] = None
-
-
-def parse_sim_error(response: Response) -> SimulatorError:
-    """Normalize all documented simulator error response shapes."""
-    try:
-        payload = response.json()
-    except ValueError:
-        payload = None
-
-    code = "UNKNOWN_ERROR"
-    message = response.reason_phrase or "Simulator request failed"
-    detail: Optional[Any] = None
-    if isinstance(payload, dict):
-        error = payload.get("error")
-        nested = payload.get("detail")
-        candidate = error if isinstance(error, dict) else nested
-        if isinstance(candidate, dict):
-            code = str(candidate.get("code", code))
-            message = str(candidate.get("message", message))
-            detail = candidate
-        elif isinstance(nested, list):
-            code = "VALIDATION_ERROR"
-            detail = nested
-            if nested and isinstance(nested[0], dict):
-                message = str(nested[0].get("msg", message))
-        elif isinstance(nested, str):
-            message = nested
-            detail = nested
-
-    return SimulatorError(
-        status_code=response.status_code,
-        code=code,
-        message=message,
-        detail=detail,
-    )

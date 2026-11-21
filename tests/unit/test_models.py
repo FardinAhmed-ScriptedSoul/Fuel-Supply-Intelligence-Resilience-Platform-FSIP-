@@ -11,8 +11,8 @@ from core.models import (
     Instance,
     Route,
     Station,
-    parse_sim_error,
 )
+from core.sim_client import parse_sim_error
 
 
 def test_instance_uses_simulator_field_names_and_ignores_extra_fields() -> None:

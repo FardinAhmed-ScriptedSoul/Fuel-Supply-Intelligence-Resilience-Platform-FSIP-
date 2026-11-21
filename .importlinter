@@ -26,9 +26,6 @@ forbidden_modules =
     api
     worker
     app
-# KNOWN VIOLATION (backlog F-004): core.models imports httpx.Response. Remove this line when fixed.
-ignore_imports =
-    core.models -> httpx
 
 [importlinter:contract:api-not-worker]
 name = api never imports worker
