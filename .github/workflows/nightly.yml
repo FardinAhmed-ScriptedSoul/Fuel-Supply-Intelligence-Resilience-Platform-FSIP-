@@ -53,7 +53,7 @@ jobs:
           else
             echo "scripts/bakeoff.py not present yet (see backlog F-009)"
           fi
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: evidence-${{ github.run_id }}
