@@ -5,9 +5,8 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from collections.abc import Awaitable
+from collections.abc import Awaitable, Callable
 from datetime import datetime, timezone
-from typing import Callable
 
 from core.metrics import (
     forecast_job_failures,
