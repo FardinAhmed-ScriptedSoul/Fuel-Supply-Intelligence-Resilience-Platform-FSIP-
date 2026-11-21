@@ -1,0 +1,327 @@
+{
+  "note": "Structured mirror of implementation/BACKLOG.md. Narrative and acceptance criteria live in BACKLOG.md; ids/branches/sprints/dependencies live here and drive the scripts.",
+  "features": [
+    {
+      "id": "F-001",
+      "title": "PostgreSQL 18 migration",
+      "type": "chore",
+      "branch": "chore/F-001-postgres-18-migration",
+      "priority": "P0",
+      "track": "DevOps/DB",
+      "sprint": "S1",
+      "depends": [],
+      "levels": [
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "F-002",
+      "title": "CI hardening (adopt starter kit)",
+      "type": "chore",
+      "branch": "chore/F-002-ci-hardening",
+      "priority": "P0",
+      "track": "DevOps",
+      "sprint": "S1",
+      "depends": [],
+      "levels": [
+        "pipeline"
+      ]
+    },
+    {
+      "id": "F-003",
+      "title": "Dependency security bump (fastapi/starlette)",
+      "type": "fix",
+      "branch": "fix/F-003-dependency-security-bump",
+      "priority": "P0",
+      "track": "Backend",
+      "sprint": "S1",
+      "depends": [
+        "F-002"
+      ],
+      "levels": [
+        "unit",
+        "integration"
+      ]
+    },
+    {
+      "id": "F-004",
+      "title": "Keep core pure (remove httpx from core.models)",
+      "type": "refactor",
+      "branch": "refactor/F-004-core-purity-httpx",
+      "priority": "P1",
+      "track": "Backend",
+      "sprint": "S1",
+      "depends": [
+        "F-002"
+      ],
+      "levels": [
+        "unit"
+      ]
+    },
+    {
+      "id": "F-005",
+      "title": "Live dispatch acceptance (approve -> ARRIVED, replay)",
+      "type": "feat",
+      "branch": "feat/F-005-live-dispatch-acceptance",
+      "priority": "P0",
+      "track": "Backend/QA",
+      "sprint": "S2",
+      "depends": [
+        "F-001"
+      ],
+      "levels": [
+        "unit",
+        "integration",
+        "e2e",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "F-010",
+      "title": "Pre-flight hardening (events, in-flight headroom)",
+      "type": "feat",
+      "branch": "feat/F-010-preflight-hardening",
+      "priority": "P0",
+      "track": "Backend",
+      "sprint": "S2",
+      "depends": [
+        "F-005"
+      ],
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "F-006",
+      "title": "Predictor service with breaker and in-process fallback",
+      "type": "feat",
+      "branch": "feat/F-006-predictor-fallback",
+      "priority": "P0",
+      "track": "Intelligence",
+      "sprint": "S3",
+      "depends": [
+        "F-002"
+      ],
+      "levels": [
+        "unit",
+        "integration",
+        "e2e",
+        "acceptance"
+      ],
+      "start_sprint": "S2"
+    },
+    {
+      "id": "F-007",
+      "title": "Acceptance scenario suite (brief scenarios)",
+      "type": "test",
+      "branch": "test/F-007-acceptance-scenario-suite",
+      "priority": "P0",
+      "track": "QA",
+      "sprint": "S3",
+      "depends": [
+        "F-005"
+      ],
+      "levels": [
+        "acceptance"
+      ]
+    },
+    {
+      "id": "F-008",
+      "title": "Fault-handling matrix proven",
+      "type": "feat",
+      "branch": "feat/F-008-fault-handling-matrix",
+      "priority": "P0",
+      "track": "Backend/Frontend",
+      "sprint": "S3",
+      "depends": [
+        "F-005",
+        "F-006"
+      ],
+      "levels": [
+        "unit",
+        "integration",
+        "e2e",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "F-009",
+      "title": "Finite supply and rationing",
+      "type": "feat",
+      "branch": "feat/F-009-finite-supply-rationing",
+      "priority": "P1",
+      "track": "Intelligence",
+      "sprint": "S4",
+      "depends": [
+        "F-007"
+      ],
+      "levels": [
+        "unit",
+        "integration",
+        "acceptance"
+      ],
+      "start_sprint": "S3"
+    },
+    {
+      "id": "F-011",
+      "title": "Load test (k6)",
+      "type": "test",
+      "branch": "test/F-011-load-test-k6",
+      "priority": "P1",
+      "track": "DevOps",
+      "sprint": "S4",
+      "depends": [
+        "F-001"
+      ],
+      "levels": [
+        "load"
+      ]
+    },
+    {
+      "id": "F-012",
+      "title": "Deploy to Vercel + Render",
+      "type": "chore",
+      "branch": "chore/F-012-deploy-vercel-render",
+      "priority": "P1",
+      "track": "DevOps",
+      "sprint": "S4",
+      "depends": [
+        "F-001",
+        "F-003"
+      ],
+      "levels": [
+        "integration"
+      ]
+    },
+    {
+      "id": "F-013",
+      "title": "Operator identity and hardening",
+      "type": "feat",
+      "branch": "feat/F-013-operator-identity-hardening",
+      "priority": "P1",
+      "track": "Backend",
+      "sprint": "S4",
+      "depends": [
+        "F-002"
+      ],
+      "levels": [
+        "unit",
+        "integration",
+        "e2e"
+      ]
+    },
+    {
+      "id": "F-017",
+      "title": "Grafana dashboards and alert rules",
+      "type": "feat",
+      "branch": "feat/F-017-grafana-dashboards",
+      "priority": "P1",
+      "track": "DevOps",
+      "sprint": "S4",
+      "depends": [
+        "F-006"
+      ],
+      "levels": [
+        "integration"
+      ]
+    },
+    {
+      "id": "F-018",
+      "title": "E2E journeys (Playwright)",
+      "type": "test",
+      "branch": "test/F-018-e2e-playwright-journeys",
+      "priority": "P1",
+      "track": "QA/Frontend",
+      "sprint": "S4",
+      "depends": [
+        "F-005"
+      ],
+      "levels": [
+        "e2e"
+      ],
+      "start_sprint": "S2"
+    },
+    {
+      "id": "F-014",
+      "title": "LP policy and bake-off (stretch)",
+      "type": "feat",
+      "branch": "feat/F-014-lp-policy-bakeoff",
+      "priority": "P2",
+      "track": "Intelligence",
+      "sprint": "S4",
+      "depends": [
+        "F-007",
+        "F-009"
+      ],
+      "levels": [
+        "unit",
+        "acceptance"
+      ]
+    },
+    {
+      "id": "F-015",
+      "title": "What-if endpoint (stretch)",
+      "type": "feat",
+      "branch": "feat/F-015-what-if-endpoint",
+      "priority": "P2",
+      "track": "Intelligence",
+      "sprint": "S4",
+      "depends": [
+        "F-006"
+      ],
+      "levels": [
+        "unit",
+        "integration",
+        "e2e"
+      ]
+    },
+    {
+      "id": "F-016",
+      "title": "LLM explanations (stretch)",
+      "type": "feat",
+      "branch": "feat/F-016-llm-explanations",
+      "priority": "P2",
+      "track": "Intelligence",
+      "sprint": "S4",
+      "depends": [
+        "F-006"
+      ],
+      "levels": [
+        "unit",
+        "integration"
+      ]
+    },
+    {
+      "id": "F-020",
+      "title": "SQL migrations (only if schema evolves)",
+      "type": "chore",
+      "branch": "chore/F-020-sql-migrations",
+      "priority": "P2",
+      "track": "Backend",
+      "sprint": "S4",
+      "depends": [
+        "F-001"
+      ],
+      "levels": [
+        "integration"
+      ]
+    },
+    {
+      "id": "F-019",
+      "title": "Demo runbook and evidence pack",
+      "type": "docs",
+      "branch": "docs/F-019-demo-runbook-evidence-pack",
+      "priority": "P1",
+      "track": "Docs",
+      "sprint": "S5",
+      "depends": [
+        "F-007",
+        "F-011"
+      ],
+      "levels": []
+    }
+  ]
+}

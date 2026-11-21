@@ -1,0 +1,16 @@
+{
+  "project": "Fuel Supply Intelligence & Resilience Platform",
+  "timezone_note": "Reports use the machine's local date. Team timezone: Asia/Dhaka (UTC+6).",
+  "repos": [
+    { "name": "hub",  "path": ".",                  "role": "docs, planning, reports" },
+    { "name": "code", "path": "code/fuel-platform", "role": "trunk code repo", "url": "https://github.com/thunderstorm009/fuel_simulator.git", "primary": true }
+  ],
+  "reference_repos": [
+    { "name": "fsip", "path": "code/ref-fsip", "url": "https://github.com/IamAsif53/Fuel-Management-System.git", "role": "read-only reference (specs, fixtures, LP formulation)" }
+  ],
+  "report": {
+    "author_from_git": true,
+    "include_hub_commits": true,
+    "max_commits_listed": 40
+  }
+}

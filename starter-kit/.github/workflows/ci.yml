@@ -1,0 +1,202 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PYTHONPATH: backend:backend/shared:intel/predictor
+
+jobs:
+  # ---------------------------------------------------------------- backend
+  backend:
+    name: backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - run: pip install -r requirements-dev.txt -r requirements-ci.txt
+      - name: Lint
+        run: |
+          ruff check .
+          ruff format --check .
+      - name: Architecture contracts (import-linter)
+        run: lint-imports
+      - name: Unit + scenario-contract tests with coverage
+        run: pytest tests/unit tests/scenarios -q --cov=backend --cov-report=term-missing --cov-report=xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          if-no-files-found: ignore
+
+  # ---------------------------------------------------------------- db + real simulator
+  db-integration:
+    name: db-integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: fuel
+          POSTGRES_USER: fuel
+          POSTGRES_PASSWORD: ci-only-password
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U fuel -d fuel"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+      simulator:
+        image: asifmahmoud414/bup-fuel-supply-simulator:1.0.0
+        env:
+          SIMULATOR_START_MODE: paused
+          SIMULATION_SPEED: "8"
+          TICK_MINUTES: "15"
+        ports: ["8000:8000"]
+    env:
+      DATABASE_URL: postgresql://fuel:ci-only-password@localhost:5432/fuel
+      SIM_BASE_URL: http://localhost:8000
+      PGPASSWORD: ci-only-password
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - run: pip install -r requirements-dev.txt -r requirements-ci.txt
+      - name: Apply schema on PostgreSQL 18 (proves schema compatibility)
+        run: psql -h localhost -U fuel -d fuel -v ON_ERROR_STOP=1 -f backend/api/db.sql
+      - name: Wait for simulator
+        run: |
+          for i in $(seq 1 30); do
+            curl -fsS http://localhost:8000/v1/health && exit 0
+            sleep 2
+          done
+          echo "simulator did not become healthy" >&2; exit 1
+      - name: Integration tests
+        run: pytest tests/integration -q
+
+  # ---------------------------------------------------------------- frontend
+  frontend:
+    name: frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci --prefix web
+      - run: npm --prefix web run typecheck
+      - run: npm --prefix web run test
+      - run: npm --prefix web run build
+
+  # ---------------------------------------------------------------- security
+  security:
+    name: security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Secret scan (gitleaks)
+        run: |
+          docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:latest \
+            detect --source /repo --config /repo/.gitleaks.toml --redact --no-banner
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-ci.txt ruff==0.11.7
+      - name: Static security rules (bandit rules via ruff; S311 retry jitter is not security-relevant)
+        run: ruff check --select S --ignore S311 --exclude tests backend intel
+      - name: Python dependency audit
+        # TEMPORARY WAIVER (owner: backend lead, expires with F-003): baseline has 14 starlette advisories.
+        # Remove continue-on-error once fastapi/starlette are bumped.
+        continue-on-error: true
+        run: pip-audit -r requirements.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Node dependency audit (production deps, high+)
+        run: npm audit --prefix web --omit=dev --audit-level=high
+
+  # ---------------------------------------------------------------- compose + smoke
+  compose-smoke:
+    name: compose-smoke
+    needs: [backend]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare env
+        run: cp .env.example .env
+      - run: docker compose config -q
+      - name: Build and start the full stack
+        run: docker compose up -d --build --wait --wait-timeout 300
+      - name: Smoke test
+        run: bash scripts/smoke.sh
+      - name: Dump logs on failure
+        if: failure()
+        run: docker compose logs --no-color --tail=200
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
+
+  # ---------------------------------------------------------------- e2e (activates when web/e2e exists)
+  e2e:
+    name: e2e
+    needs: [compose-smoke]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect Playwright suite
+        id: detect
+        run: |
+          if [ -d web/e2e ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; fi
+      - name: Start stack
+        if: steps.detect.outputs.present == 'true'
+        run: |
+          cp .env.example .env
+          docker compose up -d --build --wait --wait-timeout 300
+      - uses: actions/setup-node@v4
+        if: steps.detect.outputs.present == 'true'
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Run Playwright
+        if: steps.detect.outputs.present == 'true'
+        env:
+          E2E_BASE_URL: http://localhost:5173
+        run: |
+          npm ci --prefix web
+          npx --prefix web playwright install --with-deps chromium
+          npm --prefix web run e2e
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.detect.outputs.present == 'true'
+        with:
+          name: playwright-report
+          path: web/playwright-report
+          if-no-files-found: ignore
+      - name: Tear down
+        if: always() && steps.detect.outputs.present == 'true'
+        run: docker compose down -v

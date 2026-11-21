@@ -1,0 +1,8 @@
+{
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "terminal.integrated.defaultProfile.windows": "Git Bash",
+  "markdown.validate.enabled": true,
+  "[python]": { "editor.defaultFormatter": "charliermarsh.ruff", "editor.formatOnSave": true }
+}

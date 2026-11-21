@@ -1,0 +1,13 @@
+# REPLACE the placeholders with real GitHub handles/teams before enabling "Require review from Code Owners".
+# Dispatch path and safety-critical code: policy requires 2 approvals (one must be an owner below).
+*                                   @REPLACE_WITH_TEAM_OR_LEAD
+/backend/worker/executor.py         @REPLACE_BACKEND_LEAD @REPLACE_SECOND_REVIEWER
+/backend/shared/core/validator.py   @REPLACE_BACKEND_LEAD @REPLACE_SECOND_REVIEWER
+/backend/shared/core/sim_client.py  @REPLACE_BACKEND_LEAD
+/backend/shared/core/policies/      @REPLACE_INTELLIGENCE_LEAD
+/backend/api/                       @REPLACE_BACKEND_LEAD
+/web/                               @REPLACE_FRONTEND_LEAD
+/.github/                           @REPLACE_DEVOPS_LEAD
+/docker-compose.yml                 @REPLACE_DEVOPS_LEAD
+/deploy/                            @REPLACE_DEVOPS_LEAD
+/docs/process/                      @REPLACE_WITH_TEAM_OR_LEAD

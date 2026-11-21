@@ -1,1 +1,31 @@
+﻿# --- secrets (never commit) ---
 *.env
+.env
+!.env.example
+
+# --- local clones and tooling ---
+/code/
+.venv/
+venv/
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+coverage.xml
+.coverage
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+
+# --- temp ---
+*.tmp
+evidence/tmp/

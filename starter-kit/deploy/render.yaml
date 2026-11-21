@@ -1,0 +1,53 @@
+# UNTESTED Render Blueprint skeleton (backlog F-012). Review every field against Render's docs before use.
+# Free-tier reality: web services sleep after 15 min idle; only ~750 free instance-hours per workspace;
+# background workers have no free tier; free Postgres expires after 30 days. See docs/process/PIPELINE.md.
+# The worker serves /health, so it can run as a *web* service (keeps the free-tier option open).
+databases:
+  - name: fuel-db
+    plan: basic-256mb          # paid; use "free" only for short-lived demos (expires in 30 days)
+    postgresMajorVersion: "18"
+
+services:
+  - type: web
+    name: fuel-simulator
+    runtime: image
+    image:
+      url: docker.io/asifmahmoud414/bup-fuel-supply-simulator:1.0.0
+    plan: free
+    healthCheckPath: /v1/health
+    envVars:
+      - { key: PORT, value: "8000" }
+      - { key: SIMULATOR_START_MODE, value: paused }
+      - { key: SIMULATION_SPEED, value: "1" }
+      - { key: TICK_MINUTES, value: "15" }
+
+  - type: web
+    name: fuel-worker
+    runtime: docker
+    dockerfilePath: ./backend/worker/Dockerfile
+    dockerContext: .
+    plan: starter
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass
+    envVars:
+      - { key: PORT, value: "8102" }
+      - { key: SIM_BASE_URL, fromService: { type: web, name: fuel-simulator, envVarKey: RENDER_EXTERNAL_URL } }
+      - { key: DATABASE_URL, fromDatabase: { name: fuel-db, property: connectionString } }
+      - { key: INGEST_INTERVAL_S, value: "5" }
+      - { key: PREDICTOR_URL, value: "" }
+
+  - type: web
+    name: fuel-api
+    runtime: docker
+    dockerfilePath: ./backend/api/Dockerfile
+    dockerContext: .
+    plan: starter
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass
+    envVars:
+      - { key: PORT, value: "8101" }
+      - { key: DATABASE_URL, fromDatabase: { name: fuel-db, property: connectionString } }
+      - { key: OPERATOR_TOKEN, sync: false }     # set in the Render dashboard; never commit
+      - { key: CORS_ORIGIN, sync: false }        # the Vercel URL
+# NOTE: db.sql is applied by docker-entrypoint-initdb.d locally; Render's managed Postgres does not do that.
+# F-012 must add "apply schema on boot" (idempotent CREATE TABLE IF NOT EXISTS) or a one-off psql step.

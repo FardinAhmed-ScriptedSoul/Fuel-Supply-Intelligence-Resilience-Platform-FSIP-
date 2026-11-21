@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "anthropic.claude-code",
+    "ms-python.python",
+    "charliermarsh.ruff",
+    "bierner.markdown-mermaid",
+    "yzhang.markdown-all-in-one",
+    "redhat.vscode-yaml",
+    "ms-azuretools.vscode-docker",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "editorconfig.editorconfig"
+  ]
+}

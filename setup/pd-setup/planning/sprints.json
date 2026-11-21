@@ -1,0 +1,59 @@
+{
+  "note": "Dates are inclusive, ISO format. Edit here; every script reads this file. Sprint ids are platform sprints S1-S5 (distinct from the earlier Sprint 1-4 history inside the trunk repo).",
+  "milestones": { "feature_freeze": "2026-11-25T18:00", "deadline": "2026-11-26" },
+  "sprints": [
+    {
+      "id": "S1", "name": "Foundations & Gates", "start": "2026-11-20", "end": "2026-11-20",
+      "goal": "Adopt the trunk repo, move to PostgreSQL 18, and put CI, branch protection and the review workflow in place so every later feature ships through gates.",
+      "exit_criteria": [
+        "docker compose boots PostgreSQL 18 and db.sql applies cleanly (CI db-integration green)",
+        "Five required checks (backend, db-integration, frontend, security, compose-smoke) enforced on main",
+        "pip-audit clean (starlette advisories closed) and the temporary waiver removed",
+        "import-linter: all contracts kept with no ignore"
+      ],
+      "demo": "Open a PR from a feature branch; show required checks, the PR template, and make pre-pr output."
+    },
+    {
+      "id": "S2", "name": "Safe Dispatch", "start": "2026-11-21", "end": "2026-11-21",
+      "goal": "Close the open dispatch gate and harden pre-flight so an approved recommendation provably reaches ARRIVED without ever sending an unsafe shipment.",
+      "exit_criteria": [
+        "Approved allocation reaches ARRIVED under deterministic stepping; identical key+body replay verified",
+        "Executor coverage >= 90% with the permanent/transient/expired paths tested",
+        "Pre-flight property tests: no plan breaks any of the 9 rules, disrupted-route events, in-flight headroom"
+      ],
+      "demo": "Approve a recommendation, step the simulator, watch it arrive; replay the same request."
+    },
+    {
+      "id": "S3", "name": "Resilience & Scenarios", "start": "2026-11-22", "end": "2026-11-22",
+      "goal": "Prove behavior under change and failure: predictor fallback, the fault matrix, and the brief's crisis scenarios with do-nothing vs policy numbers.",
+      "exit_criteria": [
+        "Predictor service with breaker + in-process fallback; FALLBACK banner visible and self-clearing",
+        "Every row of the resilience matrix has a test or recorded run and a visible degraded state",
+        "Acceptance suite covers delay, spike, depot constraint, route disruption, station outage, combined"
+      ],
+      "demo": "Kill the predictor, inject faults, watch banners and automatic recovery; show scenario results."
+    },
+    {
+      "id": "S4", "name": "Scarcity, Deploy & Observe", "start": "2026-11-23", "end": "2026-11-24",
+      "goal": "Add finite-supply rationing, deploy to Vercel/Render, ship dashboards and the load test; close security waivers; stretch only if ahead.",
+      "exit_criteria": [
+        "Cover/rationing logic and isolation-risk flags live; acceptance shows fewer unmet liters than the plain heuristic",
+        "Deployed stack passes deploy-verify; rollback rehearsed once",
+        "k6 load test report with measured p50/p95/p99, throughput, error rate",
+        "Grafana dashboards provisioned; operator identity and token hardening merged"
+      ],
+      "demo": "Open the deployed app; show Grafana; show the k6 report."
+    },
+    {
+      "id": "S5", "name": "Freeze, Evidence & Delivery", "start": "2026-11-25", "end": "2026-11-26",
+      "goal": "Feature freeze at 18:00 on 25 Nov; evidence pack, demo rehearsal from a clean clone, tag v1.0.0, deliver on 26 Nov.",
+      "exit_criteria": [
+        "Feature freeze observed (bug fixes only, 2 approvals)",
+        "Evidence pack complete: tests, load test, bake-off/scenario results, resilience demo notes",
+        "Cold start from a clean clone with docker compose up works; demo rehearsed",
+        "Tag v1.0.0 created; final report delivered"
+      ],
+      "demo": "The 14-step demonstration story from the brief."
+    }
+  ]
+}
