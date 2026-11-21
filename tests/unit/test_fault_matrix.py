@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-import asyncio
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock
 
 import httpx
 import pytest
 
-from core.models import FuelType, RouteStatus, Snapshot, StationStatus
+from core.models import FuelType, Snapshot
 from core.sim_client import SimulatorClient, SimulatorError
 from worker.forecaster import RemoteForecastError, RemoteForecaster
 
@@ -79,3 +77,4 @@ async def test_fault_matrix_timeout_classified_as_unavailable():
     with pytest.raises(SimulatorError) as exc:
         await client.get_instance()
     assert exc.value.status_code == 504
+

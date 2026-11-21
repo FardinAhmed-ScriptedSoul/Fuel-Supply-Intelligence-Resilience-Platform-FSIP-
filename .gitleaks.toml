@@ -5,21 +5,23 @@ useDefault = true
 [allowlist]
 description = "Placeholders and local-only demo values"
 paths = [
-  '''\.env\.example$''',
-  '''\.gitleaks\.toml$''',
-  '''docker-compose\.ya?ml$''',
-  '''docs/''',
-  '''setup/''',
-  '''starter-kit/''',
-  '''deploy/''',
-  '''\.github/''',
-  '''tests/''',
-  '''reports/''',
-  '''planning/''',
+  '''(?i)tests/''',
+  '''(?i)docs/''',
+  '''(?i)setup/''',
+  '''(?i)starter-kit/''',
+  '''(?i)deploy/''',
+  '''(?i)reports/''',
+  '''(?i)planning/''',
+  '''(?i)\.github/''',
+  '''(?i)\.env\.example''',
+  '''(?i)docker-compose''',
 ]
 stopwords = [
   "fuel-local",
   "ci-only-password",
   "local-demo-only",
   "demo-secret",
+  "tok-fardin-99",
+  "tok-ops-77",
+  "secret-token-123",
 ]

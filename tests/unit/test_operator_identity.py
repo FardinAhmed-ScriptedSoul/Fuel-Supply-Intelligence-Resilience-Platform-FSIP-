@@ -63,3 +63,4 @@ def test_non_local_refuses_default_token(monkeypatch):
         require_operator_token("change-me")
     assert exc.value.status_code == 503
     assert "Startup refusal" in exc.value.detail
+

@@ -7,13 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-import yaml
-
-ROOT_DIR = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT_DIR / "scripts"))
-sys.path.insert(0, str(ROOT_DIR / "backend" / "shared"))
-
-from scenario_runner import NaivePolicy, NonePolicy, load_scenario_events  # noqa: E402
+from scenario_runner import NonePolicy, load_scenario_events  # noqa: E402
 from core.models import FuelType, RouteStatus, StationStatus  # noqa: E402
 from core.policies.heuristic import HeuristicPolicy  # noqa: E402
 
@@ -98,3 +92,4 @@ def test_heuristic_vs_none_policy_on_demand_spike():
     assert plans[0].request.destination_station_id == "station-mirpur"
     assert plans[0].request.fuel_type == FuelType.DIESEL
     assert plans[0].request.quantity > 0
+

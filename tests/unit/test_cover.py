@@ -6,12 +6,9 @@ from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from fastapi import HTTPException
 
 from api.routes.read import cover
-from core.models import FuelType, RouteStatus, StationStatus
 from core.policies.heuristic import HeuristicPolicy
-from core.risk import Forecast, ForecastRecord, TrajectoryPoint
 
 
 @pytest.fixture
@@ -117,3 +114,4 @@ async def test_cover_endpoint_returns_finite_supply_metrics(sample_snapshot):
 def test_heuristic_rationing_protects_minimum_service_level():
     policy = HeuristicPolicy()
     assert policy.name == "heuristic"
+

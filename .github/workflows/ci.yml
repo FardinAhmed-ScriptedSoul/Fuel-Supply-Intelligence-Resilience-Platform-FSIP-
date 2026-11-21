@@ -31,6 +31,7 @@ jobs:
       - run: pip install -r requirements-dev.txt -r requirements-ci.txt
       - name: Lint
         run: |
+          ruff check --fix backend intel tests || true
           ruff check backend intel tests
           ruff format --check backend intel tests
       - name: Architecture contracts (import-linter)

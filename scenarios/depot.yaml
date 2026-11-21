@@ -7,3 +7,4 @@ events:
     parameters:
       depot_id: depot-gazipur
       dispatch_capacity_per_tick: 2000.0
+
