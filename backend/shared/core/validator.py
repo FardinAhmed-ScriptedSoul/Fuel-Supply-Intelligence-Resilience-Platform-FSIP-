@@ -63,6 +63,19 @@ def validate(
         return [Violation("STATION_CLOSED", "station is not open to receive fuel")]
     if getattr(route.status, "value", route.status) != "AVAILABLE":
         return [Violation("ROUTE_DISRUPTED", "route is not available")]
+
+    # F-010: Check scheduled or active route disruption events covering departure tick
+    departure_tick = snapshot.instance.tick + 1
+    for event in getattr(snapshot, "events", []):
+        event_status = getattr(event.status, "value", event.status) if hasattr(event, "status") else ""
+        event_type = getattr(event, "event_type", getattr(event, "type", ""))
+        target_id = getattr(event, "target_id", "")
+        if event_type == "route_disruption" and target_id == route.id and event_status in {"SCHEDULED", "ACTIVE"}:
+            start = getattr(event, "start_tick", snapshot.instance.tick)
+            duration = getattr(event, "duration_ticks", 0)
+            if start <= departure_tick < start + duration:
+                return [Violation("ROUTE_DISRUPTED", f"route disruption event covers departure tick {departure_tick}")]
+
     if recommendation.quantity > route.max_shipment:
         return [Violation("ROUTE_CAPACITY_EXCEEDED", "quantity exceeds route max_shipment")]
 
@@ -72,8 +85,16 @@ def validate(
         for row in reservations
         if row.source_depot_id == depot.id and row.fuel_type is fuel
     )
-    if depot.inventory[fuel] - reserved_inventory < recommendation.quantity:
-        return [Violation("INSUFFICIENT_INVENTORY", "depot has insufficient on-hand inventory")]
+    # F-010: Deduct pending allocations from available inventory
+    pending_depot = sum(
+        allocation.quantity
+        for allocation in snapshot.allocations
+        if allocation.source_depot_id == depot.id
+        and allocation.fuel_type is fuel
+        and allocation.status == AllocationStatus.PENDING
+    )
+    if depot.inventory[fuel] - reserved_inventory - pending_depot < recommendation.quantity:
+        return [Violation("INSUFFICIENT_INVENTORY", "depot has insufficient on-hand inventory net of pending shipments")]
 
     dispatch_used = sum(
         allocation.quantity
@@ -93,11 +114,19 @@ def validate(
         for row in reservations
         if row.destination_station_id == station.id and row.fuel_type is fuel
     )
+    # F-010: Include in-flight shipments in destination headroom
+    in_flight_destination = sum(
+        allocation.quantity
+        for allocation in snapshot.allocations
+        if allocation.destination_station_id == station.id
+        and allocation.fuel_type is fuel
+        and allocation.status in {AllocationStatus.PENDING, AllocationStatus.IN_TRANSIT}
+    )
     if (
-        station.inventory[fuel] + reserved_destination + recommendation.quantity
+        station.inventory[fuel] + reserved_destination + in_flight_destination + recommendation.quantity
         > station.capacity[fuel]
     ):
-        return [Violation("DESTINATION_CAPACITY_EXCEEDED", "station fuel capacity exceeded")]
+        return [Violation("DESTINATION_CAPACITY_EXCEEDED", "station fuel capacity exceeded (including in-flight headroom)")]
     return []
 
 

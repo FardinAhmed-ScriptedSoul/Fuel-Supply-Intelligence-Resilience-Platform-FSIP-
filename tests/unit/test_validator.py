@@ -169,3 +169,85 @@ def test_violation_is_immutable_and_explicit() -> None:
 
     assert violation.code == "NOT_FOUND"
     assert violation.message == "source depot missing"
+
+
+def test_route_disruption_event_blocks_dispatch() -> None:
+    """F-010: Verify scheduled or active route disruption event covering departure tick blocks dispatch."""
+    snapshot = snapshot_fixture()
+    # Inject a scheduled route disruption covering departure tick (instance.tick + 1)
+    dep_tick = snapshot.instance.tick + 1
+    event_dict = {
+        "id": "event-disrupt-1",
+        "type": "route_disruption",
+        "target_id": "route-gazipur-mirpur",
+        "status": "SCHEDULED",
+        "start_tick": dep_tick,
+        "duration_ticks": 5,
+        "impact": "Route completely closed",
+    }
+    # Append event to snapshot
+    from core.models import SimEvent
+    snapshot.events.append(SimEvent.model_validate(event_dict))
+    
+    violations = validate(request(), snapshot)
+    assert len(violations) > 0
+    assert violations[0].code == "ROUTE_DISRUPTED"
+    assert "departure tick" in violations[0].message
+
+
+def test_inflight_headroom_exceeded_blocks_dispatch() -> None:
+    """F-010: Destination capacity calculation must account for in-flight allocations."""
+    snapshot = snapshot_fixture()
+    # Find destination station capacity and inventory
+    station = next(s for s in snapshot.stations if s.id == "station-mirpur")
+    cap = station.capacity[FuelType.DIESEL]
+    station.inventory[FuelType.DIESEL] = cap - 4000  # 4000L available headroom
+
+    # Add an in-flight allocation of 2000L heading to this station
+    snapshot.allocations.append(
+        Allocation.model_validate({
+            "id": 991,
+            "idempotency_key": "in-flight-other",
+            "source_depot_id": "depot-gazipur",
+            "destination_station_id": "station-mirpur",
+            "route_id": "route-gazipur-mirpur",
+            "fuel_type": "DIESEL",
+            "quantity": 2000,
+            "created_tick": snapshot.instance.tick - 1,
+            "status": "IN_TRANSIT",
+        })
+    )
+
+    # Requesting 3000L would exceed total capacity (remaining headroom is only 2000L)
+    violations = validate(request(quantity=3000), snapshot)
+    assert len(violations) > 0
+    assert violations[0].code == "DESTINATION_CAPACITY_EXCEEDED"
+    assert "in-flight" in violations[0].message
+
+
+def test_depot_inventory_net_of_pending_allocations_blocks_dispatch() -> None:
+    """F-010: Depot available inventory must deduct already pending allocations."""
+    snapshot = snapshot_fixture()
+    depot = next(d for d in snapshot.depots if d.id == "depot-gazipur")
+    depot.inventory[FuelType.DIESEL] = 5000
+
+    # Add a pending allocation consuming 3000L
+    snapshot.allocations.append(
+        Allocation.model_validate({
+            "id": 992,
+            "idempotency_key": "pending-other",
+            "source_depot_id": "depot-gazipur",
+            "destination_station_id": "station-dhanmondi",
+            "route_id": "route-gazipur-dhanmondi",
+            "fuel_type": "DIESEL",
+            "quantity": 3000,
+            "created_tick": snapshot.instance.tick,
+            "status": "PENDING",
+        })
+    )
+
+    # Requesting 3000L when only 2000L net inventory remains must fail
+    violations = validate(request(quantity=3000), snapshot)
+    assert len(violations) > 0
+    assert violations[0].code == "INSUFFICIENT_INVENTORY"
+    assert "pending shipments" in violations[0].message
