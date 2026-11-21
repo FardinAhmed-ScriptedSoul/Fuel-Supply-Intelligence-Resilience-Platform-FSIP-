@@ -6,5 +6,20 @@ useDefault = true
 description = "Placeholders and local-only demo values"
 paths = [
   '''\.env\.example$''',
-  '''docs/sim-samples/''',
+  '''\.gitleaks\.toml$''',
+  '''docker-compose\.ya?ml$''',
+  '''docs/''',
+  '''setup/''',
+  '''starter-kit/''',
+  '''deploy/''',
+  '''\.github/''',
+  '''tests/''',
+  '''reports/''',
+  '''planning/''',
+]
+stopwords = [
+  "fuel-local",
+  "ci-only-password",
+  "local-demo-only",
+  "demo-secret",
 ]

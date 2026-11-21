@@ -57,60 +57,60 @@
       "history": [{"status": "done", "note": "Predictor service, circuit breaker and in-process fallback operational"}]
     },
     "F-007": {
-      "status": "todo",
-      "owner": "",
-      "branch": "",
-      "pr": "",
-      "updated": "",
-      "history": []
+      "status": "done",
+      "owner": "agent",
+      "branch": "test/F-007-acceptance-scenario-suite",
+      "pr": "merged",
+      "updated": "2026-11-21",
+      "history": [{"status": "done", "note": "All 6 acceptance scenarios verified against policy vs do-nothing baseline"}]
     },
     "F-008": {
-      "status": "todo",
-      "owner": "",
-      "branch": "",
-      "pr": "",
-      "updated": "",
-      "history": []
+      "status": "done",
+      "owner": "agent",
+      "branch": "feat/F-008-fault-handling-matrix",
+      "pr": "merged",
+      "updated": "2026-11-21",
+      "history": [{"status": "done", "note": "Fault handling matrix proven: 503, latency, stale data, disconnect, DB/predictor down"}]
     },
     "F-009": {
-      "status": "todo",
-      "owner": "",
-      "branch": "",
-      "pr": "",
-      "updated": "",
-      "history": []
+      "status": "done",
+      "owner": "agent",
+      "branch": "feat/F-009-finite-supply-rationing",
+      "pr": "merged",
+      "updated": "2026-11-21",
+      "history": [{"status": "done", "note": "Finite supply cover endpoint, isolation risk for Tongi/Cox's Bazar, and rationing logic live"}]
     },
     "F-011": {
-      "status": "todo",
-      "owner": "",
-      "branch": "",
-      "pr": "",
-      "updated": "",
-      "history": []
+      "status": "done",
+      "owner": "agent",
+      "branch": "test/F-011-load-test-k6",
+      "pr": "merged",
+      "updated": "2026-11-21",
+      "history": [{"status": "done", "note": "k6 load test script and benchmark reports under deploy/k6 and docs/results"}]
     },
     "F-012": {
-      "status": "todo",
-      "owner": "",
-      "branch": "",
-      "pr": "",
-      "updated": "",
-      "history": []
+      "status": "done",
+      "owner": "agent",
+      "branch": "chore/F-012-deploy-vercel-render",
+      "pr": "merged",
+      "updated": "2026-11-21",
+      "history": [{"status": "done", "note": "Render blueprint and Vercel SPA routing deployment configurations completed"}]
     },
     "F-013": {
-      "status": "todo",
-      "owner": "",
-      "branch": "",
-      "pr": "",
-      "updated": "",
-      "history": []
+      "status": "done",
+      "owner": "agent",
+      "branch": "feat/F-013-operator-identity-hardening",
+      "pr": "merged",
+      "updated": "2026-11-21",
+      "history": [{"status": "done", "note": "Per-operator tokens, audit actor tracking, non-local startup refusal, and chaos gating"}]
     },
     "F-017": {
-      "status": "todo",
-      "owner": "",
-      "branch": "",
-      "pr": "",
-      "updated": "",
-      "history": []
+      "status": "done",
+      "owner": "agent",
+      "branch": "feat/F-017-grafana-dashboards",
+      "pr": "merged",
+      "updated": "2026-11-21",
+      "history": [{"status": "done", "note": "Grafana dashboards and Prometheus alerting provisioned for platform golden signals"}]
     },
     "F-018": {
       "status": "done",
@@ -121,46 +121,48 @@
       "history": [{"status": "done", "note": "Playwright configuration and E2E journeys added"}]
     },
     "F-014": {
-      "status": "todo",
+      "status": "cut",
       "owner": "",
       "branch": "",
       "pr": "",
-      "updated": "",
-      "history": []
+      "updated": "2026-11-21",
+      "history": [{"status": "cut", "note": "P2 stretch cut per backlog cut order"}]
     },
     "F-015": {
-      "status": "todo",
+      "status": "cut",
       "owner": "",
       "branch": "",
       "pr": "",
-      "updated": "",
-      "history": []
+      "updated": "2026-11-21",
+      "history": [{"status": "cut", "note": "P2 stretch cut per backlog cut order"}]
     },
     "F-016": {
-      "status": "todo",
+      "status": "cut",
       "owner": "",
       "branch": "",
       "pr": "",
-      "updated": "",
-      "history": []
+      "updated": "2026-11-21",
+      "history": [{"status": "cut", "note": "P2 stretch cut per backlog cut order"}]
     },
     "F-020": {
-      "status": "todo",
+      "status": "cut",
       "owner": "",
       "branch": "",
       "pr": "",
-      "updated": "",
-      "history": []
+      "updated": "2026-11-21",
+      "history": [{"status": "cut", "note": "P2 stretch - schema remains stable on PG 18"}]
     },
     "F-019": {
-      "status": "todo",
-      "owner": "",
-      "branch": "",
-      "pr": "",
-      "updated": "",
-      "history": []
+      "status": "done",
+      "owner": "agent",
+      "branch": "docs/F-019-demo-runbook-evidence-pack",
+      "pr": "merged",
+      "updated": "2026-11-21",
+      "history": [{"status": "done", "note": "Demo runbook, 14-step presentation narrative, and evidence pack completed"}]
     }
   },
   "blockers": [],
-  "notes": []
+  "notes": [
+    {"kind": "next", "text": "Platform ready for deployment on Vercel and Render, all S1-S5 requirements fulfilled."}
+  ]
 }

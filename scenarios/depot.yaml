@@ -1,0 +1,9 @@
+name: depot
+description: Depot dispatch constraint at Gazipur depot.
+events:
+  - type: depot_constraint
+    start_tick: 4
+    end_tick: 12
+    parameters:
+      depot_id: depot-gazipur
+      dispatch_capacity_per_tick: 2000.0

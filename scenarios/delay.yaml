@@ -1,0 +1,9 @@
+name: delay
+description: Supply shipment arrival delay into Gazipur depot.
+events:
+  - type: shipment_delay
+    start_tick: 6
+    end_tick: 16
+    parameters:
+      supply_id: supply-101
+      delayed_ticks: 8

@@ -23,6 +23,11 @@ async def forecast_failure(
     payload: ForecastFailureRequest,
     _: str = Depends(require_operator_token),
 ) -> dict[str, Any]:
+    dev_tools = os.getenv("DEV_TOOLS_ENABLED", "true").lower()
+    if dev_tools not in {"true", "1", "yes"}:
+        raise HTTPException(
+            status_code=403, detail="Chaos endpoints are disabled in this environment"
+        )
     predictor_url = os.getenv("PREDICTOR_URL", "http://predictor:8103").rstrip("/")
     token = os.getenv("OPERATOR_TOKEN", "")
     try:

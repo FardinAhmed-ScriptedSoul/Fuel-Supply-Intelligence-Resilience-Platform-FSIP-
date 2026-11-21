@@ -90,6 +90,26 @@ describe("operator application", () => {
       });
       if (url.endsWith("/api/recommendations")) return jsonResponse({ recommendations });
       if (url.endsWith("/api/decisions")) return jsonResponse({ decisions });
+      if (url.endsWith("/api/cover")) return jsonResponse({
+        supply_ends_tick: 212,
+        current_tick: 1,
+        ticks_remaining_supply: 211,
+        rationing_active: false,
+        rationing_mode: "STANDARD_COVER",
+        network_days_of_cover: 6.2,
+        fuel_cover: {
+          DIESEL: { total_inventory_liters: 100000, daily_demand_liters: 20000, days_of_cover: 5.0 },
+          PETROL: { total_inventory_liters: 80000, daily_demand_liters: 15000, days_of_cover: 5.3 },
+          OCTANE: { total_inventory_liters: 50000, daily_demand_liters: 10000, days_of_cover: 5.0 },
+        },
+        region_cover: {},
+        stations: [],
+        fetched_at: "2026-01-01T00:00:00Z",
+        data_age_seconds: 0,
+        data_status: "HEALTHY",
+        stale: false,
+        simulated: true,
+      });
       if (url.endsWith("/approve") && init?.method === "POST") {
         recommendations = recommendations.map((item) => ({ ...item, status: "APPROVED" }));
         decisions = [{ id: 1, recommendation_id: recommendation.id, actor: "operator", action: "approve", reason: null, at: "2026-01-01T00:00:00Z", status: "APPROVED", station_id: recommendation.station_id, fuel_type: "DIESEL", quantity: 3000, route_id: recommendation.route_id }];
@@ -114,6 +134,26 @@ describe("operator application", () => {
       if (url.endsWith("/api/risks")) return jsonResponse({ forecasts: [], data_status: "DEGRADED", data_age_seconds: 20, stale: true, simulated: true });
       if (url.endsWith("/api/recommendations")) return jsonResponse({ recommendations: [] });
       if (url.endsWith("/api/decisions")) return jsonResponse({ decisions: [] });
+      if (url.endsWith("/api/cover")) return jsonResponse({
+        supply_ends_tick: 212,
+        current_tick: 1,
+        ticks_remaining_supply: 211,
+        rationing_active: false,
+        rationing_mode: "STANDARD_COVER",
+        network_days_of_cover: 6.2,
+        fuel_cover: {
+          DIESEL: { total_inventory_liters: 100000, daily_demand_liters: 20000, days_of_cover: 5.0 },
+          PETROL: { total_inventory_liters: 80000, daily_demand_liters: 15000, days_of_cover: 5.3 },
+          OCTANE: { total_inventory_liters: 50000, daily_demand_liters: 10000, days_of_cover: 5.0 },
+        },
+        region_cover: {},
+        stations: [],
+        fetched_at: "2026-01-01T00:00:00Z",
+        data_age_seconds: 0,
+        data_status: "HEALTHY",
+        stale: false,
+        simulated: true,
+      });
       return jsonResponse({ detail: "not found" }, 404);
     });
     renderApp();

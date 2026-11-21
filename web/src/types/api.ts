@@ -181,3 +181,40 @@ export interface Decision {
   quantity: number;
   route_id: string;
 }
+
+export interface CoverStation {
+  station_id: string;
+  name: string;
+  region_id: string;
+  demand_profile: string;
+  demand_multiplier: number;
+  single_route: boolean;
+  isolation_risk: boolean;
+  target_buffer_ratio: number;
+  inventory: Record<Fuel, number>;
+  capacity: Record<Fuel, number>;
+  days_of_cover: Record<Fuel, number>;
+}
+
+export interface CoverFuel {
+  total_inventory_liters: number;
+  daily_demand_liters: number;
+  days_of_cover: number;
+}
+
+export interface CoverResponse {
+  supply_ends_tick: number;
+  current_tick: number;
+  ticks_remaining_supply: number;
+  rationing_active: boolean;
+  rationing_mode: string;
+  network_days_of_cover: number;
+  fuel_cover: Record<Fuel, CoverFuel>;
+  region_cover: Record<string, Record<Fuel, { inventory_liters: number; daily_demand_liters: number; days_of_cover: number }>>;
+  stations: CoverStation[];
+  fetched_at: string;
+  data_age_seconds: number;
+  data_status: DataStatus;
+  stale: boolean;
+  simulated: true;
+}

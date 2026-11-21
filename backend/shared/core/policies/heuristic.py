@@ -57,13 +57,16 @@ class HeuristicPolicy:
                 recent_ratio,
                 snapshot.instance.tick_minutes,
             )
-            target_inventory = min(station.capacity[fuel] * 0.7, sum(rates))
-            free_capacity = station.capacity[fuel] - station.inventory[fuel]
-            if free_capacity <= 0:
-                continue
             routes = [
                 route for route in snapshot.routes if route.destination_station_id == station.id
             ]
+            is_single_route = len(routes) == 1
+            supply_ended = snapshot.instance.tick >= 212
+            target_factor = 0.85 if is_single_route else (0.50 if supply_ended else 0.70)
+            target_inventory = min(station.capacity[fuel] * target_factor, sum(rates))
+            free_capacity = station.capacity[fuel] - station.inventory[fuel]
+            if free_capacity <= 0:
+                continue
             route_candidates = sorted(
                 routes,
                 key=lambda route: (

@@ -32,12 +32,34 @@ class RejectRequest(BaseModel):
 def require_operator_token(
     token: Annotated[str, Header(alias="X-Operator-Token")] = "",
 ) -> str:
-    expected = os.getenv("OPERATOR_TOKEN")
-    if not expected:
+    env = os.getenv("ENV", "local").lower()
+    multi_tokens = os.getenv("OPERATOR_TOKENS", "").strip()
+    single_token = os.getenv("OPERATOR_TOKEN", "").strip()
+
+    if not multi_tokens and not single_token:
         raise HTTPException(status_code=503, detail="Operator decisions are not configured")
-    if not hmac.compare_digest(token, expected):
-        raise HTTPException(status_code=401, detail="Invalid operator token")
-    return "operator"
+
+    if env != "local" and single_token in {"", "change-me", "default-token"}:
+        raise HTTPException(
+            status_code=503,
+            detail="Startup refusal: insecure default operator token in non-local environment",
+        )
+
+    if not token:
+        raise HTTPException(status_code=401, detail="Missing operator token")
+
+    if multi_tokens:
+        for entry in multi_tokens.split(","):
+            if ":" in entry:
+                actor_name, actor_token = entry.split(":", 1)
+                actor_name, actor_token = actor_name.strip(), actor_token.strip()
+                if hmac.compare_digest(token, actor_token):
+                    return actor_name
+
+    if single_token and hmac.compare_digest(token, single_token):
+        return "operator"
+
+    raise HTTPException(status_code=401, detail="Invalid operator token")
 
 
 @router.get("/recommendations")

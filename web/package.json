@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b --pretty false",
-    "test": "vitest run"
+    "test": "vitest run",
+    "e2e": "npx playwright test"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.5",

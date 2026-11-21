@@ -5,8 +5,9 @@ import PageNavigation, { type Page } from "../components/layout/PageNavigation";
 import DashboardPage from "../features/dashboard/DashboardPage";
 import RecommendationsPage from "../features/allocations/RecommendationsPage";
 import ShortageRiskPage from "../features/shortage-risk/ShortageRiskPage";
+import CoverPage from "../features/cover/CoverPage";
 import HealthPage from "../features/system-health/HealthPage";
-import { fetchEvents, fetchHealth, fetchRisks, fetchState, fetchTrajectory } from "../services/api";
+import { fetchCover, fetchEvents, fetchHealth, fetchRisks, fetchState, fetchTrajectory } from "../services/api";
 import type { Fuel } from "../types/api";
 import { localTime } from "../lib/format";
 
@@ -18,6 +19,7 @@ export default function App() {
   const eventsQuery = useQuery({ queryKey: ["events"], queryFn: fetchEvents, refetchInterval: 3000 });
   const risksQuery = useQuery({ queryKey: ["risks"], queryFn: fetchRisks, refetchInterval: 3000 });
   const healthQuery = useQuery({ queryKey: ["health"], queryFn: fetchHealth, refetchInterval: 5000 });
+  const coverQuery = useQuery({ queryKey: ["cover"], queryFn: fetchCover, refetchInterval: 5000 });
   const trajectoryQuery = useQuery({
     queryKey: ["trajectory", selected?.stationId, selected?.fuel],
     queryFn: () => fetchTrajectory(selected!.stationId, selected!.fuel),
@@ -42,8 +44,15 @@ export default function App() {
           <strong>Data is {state.data_status.toLowerCase()}.</strong> The snapshot is {Math.floor(state.data_age_seconds)} seconds old{state.stale ? " and marked stale by the simulator" : ""}.
         </div>
       )}
+      {coverQuery.data?.rationing_active && (
+        <div className="notice notice-warning" role="status">
+          <strong>FINITE SUPPLY HORIZON:</strong> Scheduled supply arrivals cease at Tick 212. Dynamic rationing policy is active to protect minimum service level.
+        </div>
+      )}
       {page === "health" ? (
         <HealthPage report={healthQuery.data} loading={healthQuery.isLoading} error={healthQuery.isError} />
+      ) : page === "cover" ? (
+        <CoverPage cover={coverQuery.data} loading={coverQuery.isLoading} error={coverQuery.isError} />
       ) : !snapshot ? (
         <section className="empty-state panel">
           <p className="eyebrow">LIVE SIMULATOR SNAPSHOT</p>

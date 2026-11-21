@@ -1,0 +1,8 @@
+name: outage
+description: Temporary station maintenance or outage at Karnaphuli.
+events:
+  - type: station_outage
+    start_tick: 5
+    end_tick: 15
+    parameters:
+      station_id: station-karnaphuli

@@ -7,6 +7,7 @@ import type {
   RiskResponse,
   StateResponse,
   TrajectoryResponse,
+  CoverResponse,
 } from "../types/api";
 
 const apiBase = (import.meta.env.VITE_API_URL || "http://localhost:8101").replace(/\/$/, "");
@@ -40,6 +41,7 @@ export const fetchState = (): Promise<StateResponse> => getJson<StateResponse>("
 export const fetchEvents = (): Promise<EventsResponse> => getJson<EventsResponse>("/api/events");
 export const fetchRisks = (): Promise<RiskResponse> => getJson<RiskResponse>("/api/risks");
 export const fetchHealth = (): Promise<HealthResponse> => getJson<HealthResponse>("/api/health");
+export const fetchCover = (): Promise<CoverResponse> => getJson<CoverResponse>("/api/cover");
 export const fetchTrajectory = (stationId: string, fuel: Fuel): Promise<TrajectoryResponse> =>
   getJson<TrajectoryResponse>(`/api/risks/${encodeURIComponent(stationId)}/${fuel}/trajectory`);
 export const fetchRecommendations = async (): Promise<Recommendation[]> =>
