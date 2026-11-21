@@ -100,7 +100,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
@@ -131,7 +131,7 @@ jobs:
         run: ruff check --select S --ignore S311,S101,S104,S110 --exclude tests backend intel
       - name: Python dependency audit
         run: pip-audit -r requirements.txt
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
       - name: Node dependency audit (production deps, high+)
@@ -176,7 +176,7 @@ jobs:
         run: |
           cp .env.example .env
           docker compose up -d --build --wait --wait-timeout 300
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: steps.detect.outputs.present == 'true'
         with:
           node-version: "22"
