@@ -1,0 +1,55 @@
+# Architecture contracts for the repo's real layout (core / api / worker / predictor).
+# Run:  PYTHONPATH=backend:backend/shared:intel/predictor lint-imports   (or: make lint-arch)
+[importlinter]
+root_packages =
+    core
+    api
+    worker
+    app
+include_external_packages = True
+
+[importlinter:contract:pure-core]
+name = Pure core logic must not touch frameworks, I/O libraries or services
+type = forbidden
+source_modules =
+    core.models
+    core.world
+    core.forecast
+    core.risk
+    core.validator
+    core.explain
+    core.policies
+forbidden_modules =
+    fastapi
+    asyncpg
+    httpx
+    api
+    worker
+    app
+# KNOWN VIOLATION (backlog F-004): core.models imports httpx.Response. Remove this line when fixed.
+ignore_imports =
+    core.models -> httpx
+
+[importlinter:contract:api-not-worker]
+name = api never imports worker
+type = forbidden
+source_modules =
+    api
+forbidden_modules =
+    worker
+
+[importlinter:contract:worker-not-api]
+name = worker never imports api
+type = forbidden
+source_modules =
+    worker
+forbidden_modules =
+    api
+
+[importlinter:contract:api-reads-db-only]
+name = API reads only the database (never the simulator client)
+type = forbidden
+source_modules =
+    api
+forbidden_modules =
+    core.sim_client

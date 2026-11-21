@@ -1,0 +1,45 @@
+name: deploy-verify
+
+# Render builds and deploys from the repo (render.yaml: autoDeployTrigger: checksPass) and Vercel deploys
+# from its Git integration. This workflow only VERIFIES the deployment after CI succeeds on main and
+# reports the result. Rollback = Render "Rollback" to previous deploy / Vercel "Instant Rollback" (see PIPELINE.md).
+
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: smoke the deployed stack
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      API_URL: ${{ vars.PROD_API_URL }}
+      WORKER_URL: ${{ vars.PROD_WORKER_URL }}
+      WEB_URL: ${{ vars.PROD_WEB_URL }}
+    steps:
+      - name: Skip when no deployment is configured
+        id: cfg
+        run: |
+          if [ -z "$API_URL" ]; then echo "configured=false" >> "$GITHUB_OUTPUT"; echo "PROD_API_URL repo variable not set; nothing to verify"; else echo "configured=true" >> "$GITHUB_OUTPUT"; fi
+      - name: Wait for API health (covers Render build + cold start)
+        if: steps.cfg.outputs.configured == 'true'
+        run: |
+          curl --fail --silent --show-error --retry 30 --retry-delay 15 --retry-connrefused --retry-all-errors \
+            --max-time 20 "$API_URL/health"
+      - name: Check worker health
+        if: steps.cfg.outputs.configured == 'true' && env.WORKER_URL != ''
+        run: curl --fail --silent --show-error --retry 10 --retry-delay 10 --retry-all-errors --max-time 20 "$WORKER_URL/health"
+      - name: Check data is flowing (state endpoint answers)
+        if: steps.cfg.outputs.configured == 'true'
+        run: curl --fail --silent --show-error --retry 5 --retry-delay 10 --retry-all-errors --max-time 20 "$API_URL/api/state" > /dev/null
+      - name: Check frontend responds
+        if: steps.cfg.outputs.configured == 'true' && env.WEB_URL != ''
+        run: curl --fail --silent --show-error --retry 10 --retry-delay 10 --retry-all-errors --max-time 20 "$WEB_URL" > /dev/null

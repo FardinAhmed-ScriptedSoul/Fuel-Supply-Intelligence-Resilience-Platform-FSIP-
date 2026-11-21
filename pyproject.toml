@@ -4,10 +4,16 @@ asyncio_mode = "auto"
 addopts = "-ra"
 pythonpath = [".", "backend", "backend/shared", "intel/predictor"]
 asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "db: tests that require a live postgres database",
+    "sim: tests that require the live simulator",
+    "acceptance: business scenario acceptance tests",
+    "slow: slow running test cases",
+]
 
 [tool.ruff]
 line-length = 100
-target-version = "py39"
+target-version = "py312"
 src = [
     "backend/shared",
     "backend/api",
