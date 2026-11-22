@@ -6,6 +6,8 @@
 - **Repository:** [https://github.com/thunderstorm009/fuel_simulator](https://github.com/thunderstorm009/fuel_simulator)
 - **Branch:** `overnight-sprints-4-7`
 
+> **Provenance warning:** This report describes `thunderstorm009/fuel_simulator`, not the canonical FardinAhmed FSIP repository. Its implementation and verification claims are historical reference only and do not establish the status of this checkout. See [current progress](PROGRESS.md).
+
 ---
 
 ## Project Overview

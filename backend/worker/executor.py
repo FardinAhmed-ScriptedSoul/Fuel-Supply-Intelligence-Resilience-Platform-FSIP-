@@ -70,11 +70,11 @@ class Executor:
                 continue
 
             stored_body = row["request_body"]
-            if isinstance(stored_body, str):
-                stored_body = json.loads(stored_body)
             try:
+                if isinstance(stored_body, str):
+                    stored_body = json.loads(stored_body)
                 request = AllocationRequest.model_validate(stored_body)
-            except Exception as exc:
+            except (TypeError, ValueError) as exc:
                 await self.store.update_recommendation(
                     str(row["id"]),
                     "FAILED",

@@ -2,6 +2,8 @@
 
 Date: 2026-11-20 | Repository: `/Users/abrar/project/fuel_simulator` | Branch: `main` | Base commit: `b1fc38b`
 
+> **Provenance warning:** This report was generated in a different checkout. Its test results and gate dispositions are historical reference only, not current verification of the canonical FardinAhmed FSIP repository. See [current progress](PROGRESS.md).
+
 ## Assessment
 
 The existing Sprint 5 work was preserved and extended. Local implementation and verification are now substantially further along: predictor fallback, health aggregation/UI, Grafana provisioning, fault-demo scaffolding, resilience tests, load-test tooling, CI updates, and final operating/readiness docs are present. Sprints 5–7 are **not acceptance-complete** because required live evidence and performance/scenario results are unavailable. Sprint 4's live write gate also remains open.

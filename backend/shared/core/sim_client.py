@@ -71,6 +71,7 @@ def parse_sim_error(response: httpx.Response) -> SimulatorError:
         detail=detail,
     )
 
+
 T = TypeVar("T")
 ModelType = Any
 
@@ -302,7 +303,9 @@ class SimClient:
                 write=self.read_timeout_s,
                 pool=self.connect_timeout_s,
             )
-            async with self._http.stream("GET", endpoint, timeout=stream_timeout) as response:
+            async with self._http.stream(
+                "GET", f"{self.base_url}{endpoint}", timeout=stream_timeout
+            ) as response:
                 if response.is_error:
                     content = await response.aread()
                     error_response = httpx.Response(
@@ -371,7 +374,7 @@ class SimClient:
                 with attempt:
                     response = await self._http.request(
                         method,
-                        path,
+                        f"{self.base_url}{path}",
                         params=params,
                         json=json_body,
                     )

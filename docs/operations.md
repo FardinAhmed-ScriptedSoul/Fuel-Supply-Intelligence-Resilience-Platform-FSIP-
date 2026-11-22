@@ -2,7 +2,16 @@
 
 ## Local Compose stack
 
-Use `make up` to start the application and `make down` to stop containers while preserving named volumes. `docker compose down -v` deletes local PostgreSQL and Grafana state and should only be used when that data is intentionally disposable.
+From the repository root, validate configuration, start the services, then check their health:
+
+```sh
+docker compose --env-file .env.example config -q
+docker compose --env-file .env.example up -d --build --wait --wait-timeout 300
+docker compose ps
+bash scripts/smoke.sh
+```
+
+Use `.env.example` only for a local demo. If you have a configured `.env`, use `docker compose` (or `--env-file .env`) instead; do not overwrite existing credentials. Stop containers with `docker compose down` to preserve named volumes. `docker compose down -v` deletes local PostgreSQL and Grafana state and must only be used when that data is intentionally disposable.
 
 The six platform services and default URLs are:
 
@@ -26,7 +35,7 @@ Copy `.env.example` to `.env` and set local values. `DATABASE_URL` and `POSTGRES
 
 ```sh
 docker compose config -q
-make smoke
+bash scripts/smoke.sh
 docker compose ps
 docker compose logs --tail=100 api worker predictor frontend prometheus grafana
 ```
@@ -45,6 +54,16 @@ The simulator can be paused or reset only through its documented administrative 
 
 To restore normal operation after a simulator fault, clear the simulator fault using its supported admin endpoint and confirm a subsequent worker refresh restores healthy freshness. Do not treat SSE reconnection as data replay; REST polling/refetch remains the source of truth.
 
-## Deployment limitations
+## Deployment strategy and limitations
 
-This is a local hackathon/demo Compose deployment. Hosted CI has not been triggered, production secrets management and external deployment are not configured. Grafana dashboard and alert provisioning exists, but current runtime loading and panel movement have not been reverified. See `docs/PROGRESS.md` for environment-specific notes and open acceptance items.
+The verified path is local Docker Compose; GitHub Actions also built and smoke-tested its disposable Compose stack in PR #17, run [45044716397](https://github.com/FardinAhmed-ScriptedSoul/Fuel-Supply-Intelligence-Resilience-Platform-FSIP-/actions/runs/45044716397). The PR is still awaiting review/merge. This does not deploy to production.
+
+The Render/Vercel plan in `deploy/render.yaml` is an untested blueprint. Do not deploy it as-is: managed Postgres does not automatically apply `backend/api/db.sql`. Before a hosted deployment:
+
+1. Review and validate the Render blueprint and provision Postgres, simulator, worker, and API services.
+2. Apply `backend/api/db.sql` to the managed database using a controlled one-off migration step before starting API/worker services.
+3. Configure `DATABASE_URL`, `SIM_BASE_URL`, `PREDICTOR_URL`, a strong `OPERATOR_TOKEN`, and the exact frontend `CORS_ORIGIN` in the hosting provider; configure Vercel's `VITE_API_URL` to the API URL.
+4. Configure GitHub Actions repository variables `PROD_API_URL`, `PROD_WORKER_URL`, and `PROD_WEB_URL` so the post-deploy verification job runs instead of being skipped.
+5. After merging to `main`, verify service `/health` endpoints, API `/api/state`, frontend loading, and the deploy-verification workflow before presenting the hosted URL.
+
+Production secrets management and deployment are not configured or verified. The local Compose stack was not verified on the developer machine because its system drive has only about 380 MB free and Docker reports an inconsistent build-cache snapshot. See `PROGRESS.md` for current verification and remaining presentation tasks.

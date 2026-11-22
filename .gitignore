@@ -29,3 +29,5 @@ desktop.ini
 # --- temp ---
 *.tmp
 evidence/tmp/
+web/dist/
+*.tsbuildinfo

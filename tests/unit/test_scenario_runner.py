@@ -12,12 +12,16 @@ ROOT_DIR = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT_DIR / "scripts"))
 sys.path.insert(0, str(ROOT_DIR / "backend" / "shared"))
 
+import scenario_runner  # noqa: E402
 from scenario_runner import (  # noqa: E402
     NaivePolicy,
     NonePolicy,
     ScenarioMetrics,
+    _apply_scenario,
+    _evaluate_twice,
     load_scenario_events,
 )
+from core.models import RouteStatus  # noqa: E402
 
 
 def test_none_policy_always_empty():
@@ -81,6 +85,30 @@ def test_load_scenario_events():
     events = load_scenario_events("spike")
     assert len(events) >= 1
     assert events[0]["type"] == "demand_spike"
+
+
+def test_scenario_overlay_changes_a_copy_not_the_live_snapshot():
+    snapshot = SimpleNamespace(routes=[SimpleNamespace(id="route-1", status=RouteStatus.AVAILABLE)])
+    events = [
+        {
+            "type": "route_disruption",
+            "parameters": {"route_ids": ["route-1"]},
+        }
+    ]
+
+    scenario_snapshot = _apply_scenario(snapshot, events)
+
+    assert scenario_snapshot.routes[0].status is RouteStatus.DISRUPTED
+    assert snapshot.routes[0].status is RouteStatus.AVAILABLE
+
+
+def test_repeated_evaluation_flags_different_plans(monkeypatch):
+    results = iter(({"plans": [{"route_id": "route-1"}]}, {"plans": []}))
+    monkeypatch.setattr(scenario_runner, "_evaluate", lambda *args: next(results))
+
+    result = _evaluate_twice(SimpleNamespace(), "baseline", "naive", 20)
+
+    assert result["deterministic"] is False
 
 
 def test_scenario_metrics_dataclass():

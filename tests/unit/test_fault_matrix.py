@@ -26,6 +26,10 @@ async def test_fault_matrix_predictor_5xx_opens_circuit_breaker():
         transport=mock_transport,
     )
     snap = MagicMock(spec=Snapshot)
+    snap.demand_history = []
+    snapshot_copy = MagicMock(spec=Snapshot)
+    snapshot_copy.model_dump.return_value = {}
+    snap.model_copy.return_value = snapshot_copy
     station = MagicMock()
     station.id = "station-mirpur"
     fuel = FuelType.DIESEL
@@ -80,6 +84,7 @@ async def test_fault_matrix_malformed_payload_rejected_cleanly():
 @pytest.mark.asyncio
 async def test_fault_matrix_timeout_classified_as_unavailable():
     """Simulator network timeout is caught and cleanly handled."""
+
     def timeout_handler(request):
         raise httpx.ReadTimeout("timed out")
 
@@ -93,4 +98,3 @@ async def test_fault_matrix_timeout_classified_as_unavailable():
         )
         with pytest.raises(SimUnavailable):
             await client.get_instance()
-
