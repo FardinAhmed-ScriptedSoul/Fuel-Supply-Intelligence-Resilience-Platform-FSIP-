@@ -66,4 +66,4 @@ The Render/Vercel plan in `deploy/render.yaml` is an untested blueprint. Do not 
 4. Configure GitHub Actions repository variables `PROD_API_URL`, `PROD_WORKER_URL`, and `PROD_WEB_URL` so the post-deploy verification job runs instead of being skipped.
 5. After merging to `main`, verify service `/health` endpoints, API `/api/state`, frontend loading, and the deploy-verification workflow before presenting the hosted URL.
 
-Production secrets management and deployment are not configured or verified. The local Compose stack was not verified on the developer machine because its system drive is full and Docker reports an inconsistent build-cache snapshot. See `PROGRESS.md` for current verification and remaining presentation tasks.
+Production secrets management and deployment are not configured or verified. The local Compose stack was not verified on the developer machine because its system drive has only about 380 MB free and Docker reports an inconsistent build-cache snapshot. See `PROGRESS.md` for current verification and remaining presentation tasks.

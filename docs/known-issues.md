@@ -16,7 +16,7 @@ Older sprint reports and result files are historical artifacts; some name a diff
 ## Open verification and delivery items
 
 1. **Review and merge:** PR #17 is open and all current CI checks pass; it still needs the repository's normal review/approval and merge.
-2. **Local Compose runtime:** Not verified locally. The C: drive is full and Docker reported an inconsistent build-cache snapshot. Do not remove unrelated Docker data to work around it. CI's disposable Compose smoke and E2E checks did pass.
+2. **Local Compose runtime:** Not verified locally. The C: drive has about 380 MB free after cleaning task-generated npm files, and Docker reports an inconsistent build-cache snapshot. Do not remove unrelated Docker data to work around it. CI's disposable Compose smoke and E2E checks did pass.
 3. **Architecture lint:** It could not be installed locally because the host ran out of memory; the GitHub backend architecture check passed.
 4. **Scenario benchmark:** Current CLI compares proposed plans only. The older service-level benchmark files do not come from this CLI.
 5. **Cloud deployment:** `deploy/render.yaml` is explicitly an untested skeleton. Managed Postgres schema initialization is missing; production URLs, CORS, token, and Vercel variables are not configured.

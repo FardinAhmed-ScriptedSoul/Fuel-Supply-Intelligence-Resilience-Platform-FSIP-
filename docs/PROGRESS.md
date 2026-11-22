@@ -21,7 +21,7 @@ Last updated: 2026-11-22. Current verification for the canonical FSIP repository
 - `git diff --check`: passed.
 - Full Compose runtime is **not verified** here. Docker Desktop started, but image pulls failed with host memory allocation and `unexpected EOF` errors. No volumes were deleted and no simulator state was reset.
 - GitHub Actions run `45044716397` passed `backend`, `db-integration`, `frontend`, `security`, `compose-smoke`, and `e2e`. This verifies the ephemeral CI Compose stack and Playwright journeys, not a local or production deployment.
-- The local C: drive is full and Docker reports an inconsistent build-cache snapshot; local Compose startup and the demo were not verified. No Docker images, containers, or volumes were removed.
+- The local C: drive has about 380 MB free after cleaning task-generated npm files, and Docker reports an inconsistent build-cache snapshot; local Compose startup and the demo were not verified. No Docker images, containers, or volumes were removed.
 - Local import-linter could not be run because its installation failed with a host `MemoryError`; the corresponding GitHub backend architecture check passed.
 
 ## Current work package and exact next action
