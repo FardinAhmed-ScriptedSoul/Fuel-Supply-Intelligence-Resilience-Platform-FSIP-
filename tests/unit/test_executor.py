@@ -209,19 +209,25 @@ async def test_allocation_lifecycle_transitions_to_arrived() -> None:
     """Verify recommendation follows APPROVED -> SUBMITTED -> IN_TRANSIT -> ARRIVED."""
     snapshot = snapshot_fixture()
     store = MemoryExecutorStore(recommendation("APPROVED"))
-    
+
     # 1. First execution: SUBMITTED
-    alloc_pending = Allocation.model_validate({
-        "id": 99,
-        "idempotency_key": "rec-executor-test",
-        "source_depot_id": "depot-gazipur",
-        "destination_station_id": "station-mirpur",
-        "route_id": "route-gazipur-mirpur",
-        "fuel_type": "DIESEL",
-        "quantity": 3000,
-        "created_tick": snapshot.instance.tick,
-        "status": "PENDING",
-    })
+    alloc_pending = Allocation.model_validate(
+        {
+            "id": 99,
+            "idempotency_key": "rec-executor-test",
+            "source_depot_id": "depot-gazipur",
+            "destination_station_id": "station-mirpur",
+            "route_id": "route-gazipur-mirpur",
+            "fuel_type": "DIESEL",
+            "quantity": 3000,
+            "created_tick": snapshot.instance.tick,
+            "departure_tick": None,
+            "expected_arrival_tick": None,
+            "actual_arrival_tick": None,
+            "status": "PENDING",
+            "failure_reason": None,
+        }
+    )
     client = FakeSimClient([alloc_pending])
     executor = Executor(store, client, lambda: _resolved(snapshot))
     await executor.run_once()
@@ -229,21 +235,25 @@ async def test_allocation_lifecycle_transitions_to_arrived() -> None:
     assert store.rows[0]["sim_allocation_id"] == 99
 
     # 2. Next tick: allocation becomes IN_TRANSIT
-    alloc_transit = Allocation.model_validate({
-        **alloc_pending.model_dump(),
-        "status": "IN_TRANSIT",
-        "departure_tick": snapshot.instance.tick + 1,
-    })
+    alloc_transit = Allocation.model_validate(
+        {
+            **alloc_pending.model_dump(),
+            "status": "IN_TRANSIT",
+            "departure_tick": snapshot.instance.tick + 1,
+        }
+    )
     snapshot.allocations = [alloc_transit]
     await executor.run_once()
     assert store.rows[0]["status"] == "IN_TRANSIT"
 
     # 3. Allocation arrives: ARRIVED
-    alloc_arrived = Allocation.model_validate({
-        **alloc_pending.model_dump(),
-        "status": "ARRIVED",
-        "actual_arrival_tick": snapshot.instance.tick + 3,
-    })
+    alloc_arrived = Allocation.model_validate(
+        {
+            **alloc_pending.model_dump(),
+            "status": "ARRIVED",
+            "actual_arrival_tick": snapshot.instance.tick + 3,
+        }
+    )
     snapshot.allocations = [alloc_arrived]
     await executor.run_once()
     assert store.rows[0]["status"] == "ARRIVED"
@@ -283,6 +293,7 @@ async def test_idempotency_key_mismatch_in_row_marks_failed() -> None:
 @pytest.mark.asyncio
 async def test_snapshot_fetch_exception_is_handled_gracefully() -> None:
     """Verify snapshot fetch exception doesn't crash executor."""
+
     async def _failing_snapshot():
         raise RuntimeError("network failure during snapshot fetch")
 
@@ -293,7 +304,6 @@ async def test_snapshot_fetch_exception_is_handled_gracefully() -> None:
     # Should not raise exception
     await executor.run_once()
     assert store.rows[0]["status"] == "APPROVED"  # unmodified
-
 
 
 async def _resolved(snapshot: Snapshot) -> Snapshot:

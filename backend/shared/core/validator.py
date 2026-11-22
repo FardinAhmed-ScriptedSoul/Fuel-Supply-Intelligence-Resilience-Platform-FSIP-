@@ -67,14 +67,32 @@ def validate(
     # F-010: Check scheduled or active route disruption events covering departure tick
     departure_tick = snapshot.instance.tick + 1
     for event in getattr(snapshot, "events", []):
-        event_status = getattr(event.status, "value", event.status) if hasattr(event, "status") else ""
-        event_type = getattr(event, "event_type", getattr(event, "type", ""))
+        event_status = (
+            getattr(event.status, "value", event.status) if hasattr(event, "status") else ""
+        )
+        event_type = getattr(event, "type", getattr(event, "event_type", ""))
+        event_type = getattr(event_type, "value", event_type)
+        parameters = getattr(event, "parameters", {}) or {}
+        target_ids = parameters.get("route_ids", [])
         target_id = getattr(event, "target_id", "")
-        if event_type == "route_disruption" and target_id == route.id and event_status in {"SCHEDULED", "ACTIVE"}:
+        if target_id and not target_ids:
+            target_ids = [target_id]
+        if (
+            event_type == "route_disruption"
+            and route.id in target_ids
+            and event_status in {"SCHEDULED", "ACTIVE"}
+        ):
             start = getattr(event, "start_tick", snapshot.instance.tick)
-            duration = getattr(event, "duration_ticks", 0)
-            if start <= departure_tick < start + duration:
-                return [Violation("ROUTE_DISRUPTED", f"route disruption event covers departure tick {departure_tick}")]
+            end = getattr(event, "end_tick", None)
+            if end is None:
+                end = start + getattr(event, "duration_ticks", 0) - 1
+            if start <= departure_tick <= end:
+                return [
+                    Violation(
+                        "ROUTE_DISRUPTED",
+                        f"route disruption event covers departure tick {departure_tick}",
+                    )
+                ]
 
     if recommendation.quantity > route.max_shipment:
         return [Violation("ROUTE_CAPACITY_EXCEEDED", "quantity exceeds route max_shipment")]
@@ -94,7 +112,12 @@ def validate(
         and allocation.status == AllocationStatus.PENDING
     )
     if depot.inventory[fuel] - reserved_inventory - pending_depot < recommendation.quantity:
-        return [Violation("INSUFFICIENT_INVENTORY", "depot has insufficient on-hand inventory net of pending shipments")]
+        return [
+            Violation(
+                "INSUFFICIENT_INVENTORY",
+                "depot has insufficient on-hand inventory net of pending shipments",
+            )
+        ]
 
     dispatch_used = sum(
         allocation.quantity
@@ -123,10 +146,18 @@ def validate(
         and allocation.status in {AllocationStatus.PENDING, AllocationStatus.IN_TRANSIT}
     )
     if (
-        station.inventory[fuel] + reserved_destination + in_flight_destination + recommendation.quantity
+        station.inventory[fuel]
+        + reserved_destination
+        + in_flight_destination
+        + recommendation.quantity
         > station.capacity[fuel]
     ):
-        return [Violation("DESTINATION_CAPACITY_EXCEEDED", "station fuel capacity exceeded (including in-flight headroom)")]
+        return [
+            Violation(
+                "DESTINATION_CAPACITY_EXCEEDED",
+                "station fuel capacity exceeded (including in-flight headroom)",
+            )
+        ]
     return []
 
 

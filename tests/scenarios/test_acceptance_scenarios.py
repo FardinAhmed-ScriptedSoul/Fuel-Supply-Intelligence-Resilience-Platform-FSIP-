@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from types import SimpleNamespace
 
 import pytest
 from scenario_runner import NonePolicy, load_scenario_events  # noqa: E402
-from core.models import FuelType, RouteStatus, StationStatus  # noqa: E402
+from core.models import FuelType, RiskLevel, RouteStatus, StationStatus  # noqa: E402
 from core.policies.heuristic import HeuristicPolicy  # noqa: E402
 
 
@@ -31,7 +32,11 @@ def test_heuristic_vs_none_policy_on_demand_spike():
     heuristic = HeuristicPolicy()
 
     # Create mock snapshot where station inventory is at critical level
-    now = SimpleNamespace(tick=8, sim_time=SimpleNamespace(hour=10), tick_minutes=15)
+    now = SimpleNamespace(
+        tick=8,
+        sim_time=datetime(2026, 1, 1, 10, tzinfo=timezone.utc),
+        tick_minutes=15,
+    )
     station = SimpleNamespace(
         id="station-mirpur",
         name="Mirpur Station",
@@ -72,14 +77,19 @@ def test_heuristic_vs_none_policy_on_demand_spike():
 
     # 2. Heuristic policy evaluates risk and issues an allocation to prevent stockout
     from core.risk import Forecast, ForecastRecord
+
     record = ForecastRecord(
         forecast=Forecast(
             station_id="station-mirpur",
             fuel_type=FuelType.DIESEL,
             hours_to_stockout=1.5,
+            p10_hours=1.0,
+            p50_hours=1.5,
+            p90_hours=2.0,
             stockout_probability_24h=0.95,
             confidence=0.90,
-            stockout_tick=14,
+            risk_level=RiskLevel.CRITICAL,
+            needs_review=True,
         ),
         trajectory=[],
         drivers={"demand_multiplier": 1.8},
@@ -90,4 +100,3 @@ def test_heuristic_vs_none_policy_on_demand_spike():
     assert plans[0].request.destination_station_id == "station-mirpur"
     assert plans[0].request.fuel_type == FuelType.DIESEL
     assert plans[0].request.quantity > 0
-
