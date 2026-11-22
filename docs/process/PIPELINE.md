@@ -5,7 +5,7 @@
 | **Status** | v1.0 · 2026-11-20 · lives at `docs/process/PIPELINE.md` |
 | **Implements** | `FINAL_SYSTEM_DESIGN.md` D17–D21 on the colleague repo's layout |
 | **Files** | `.github/workflows/{ci,nightly,deploy}.yml` · `scripts/{new-feature,pre-pr-check}.sh` · `.importlinter` · `requirements-ci.txt` · `deploy/render.yaml` · `deploy/k6/load.js` |
-| **Verification status** | Workflows pass **actionlint** (negative control confirmed it can fail). Scripts were run against a real clone. **Not verified:** an actual GitHub Actions run, the Render blueprint, Docker-dependent steps (no Docker in my sandbox). |
+| **Verification status** | GitHub Actions PR run [45044716397](https://github.com/FardinAhmed-ScriptedSoul/Fuel-Supply-Intelligence-Resilience-Platform-FSIP-/actions/runs/45044716397) passed `backend`, `db-integration`, `frontend`, `security`, `compose-smoke`, and `e2e`. The Render blueprint and production deployment remain unverified; local Compose is blocked by the developer host's disk/Docker cache state. |
 
 ---
 
@@ -44,13 +44,13 @@ flowchart LR
 | 3 | **frontend** | PR, push | `npm ci` · typecheck · Vitest · build | ≤ 4 min | block |
 | 4 | **security** | PR, push | gitleaks · ruff `S` rules · `pip-audit` (**temporary waiver**) · `npm audit` | ≤ 3 min | block (waiver expires with F-003) |
 | 5 | **compose-smoke** | PR, push (after `backend`) | `docker compose up --build --wait` · `scripts/smoke.sh` · logs on failure · teardown | ≤ 10 min | block |
-| 6 | **e2e** | PR, push (after smoke) | Playwright journeys **if `web/e2e` exists** | ≤ 10 min | block once present |
+| 6 | **e2e** | PR, push (after smoke) | Playwright journeys (active because `web/e2e` exists) | ≤ 10 min | block |
 | 7 | **Preview** | PR | Vercel preview deployment of `web/` | – | informational |
 | 8 | **Deploy** | merge to `main` | Render builds after checks pass (`autoDeployTrigger: checksPass`) · Vercel production via Git integration | – | revert |
 | 9 | **deploy-verify** | `ci` succeeds on `main` | wait for API/worker/web health · confirm `/api/state` answers | ≤ 15 min | alert; revert first |
 | 10 | **Nightly evidence** | 20:00 UTC, manual | acceptance suite · k6 load · bake-off · artifacts uploaded | ≤ 45 min | report, fix next day |
 
-Required status checks on `main`: **`backend`, `db-integration`, `frontend`, `security`, `compose-smoke`** (`e2e` becomes required when F-018 lands).
+The workflow currently runs **`backend`, `db-integration`, `frontend`, `security`, `compose-smoke`, and `e2e`** on PRs. Repository branch-protection settings were not independently inspected, so the list of enforced required checks remains unverified.
 
 ---
 
