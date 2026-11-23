@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from datetime import timezone
+from pathlib import Path
 from typing import Any, Protocol
 
 import asyncpg
@@ -32,6 +33,9 @@ class PostgresStore:
     @classmethod
     async def connect(cls, database_url: str) -> PostgresStore:
         pool = await asyncpg.create_pool(database_url, min_size=1, max_size=5)
+        schema = (Path(__file__).parents[1] / "api" / "db.sql").read_text(encoding="utf-8")
+        async with pool.acquire() as connection:
+            await connection.execute(schema)
         await pool.execute("ALTER TABLE snapshots DROP CONSTRAINT IF EXISTS snapshots_tick_key")
         await pool.execute(
             "CREATE INDEX IF NOT EXISTS snapshots_tick_fetched_idx "

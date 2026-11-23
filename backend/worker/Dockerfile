@@ -6,6 +6,7 @@ RUN pip install --no-cache-dir -r requirements.txt \
     && groupadd --system app && useradd --system --gid app --home-dir /app app
 COPY backend/shared/core ./core
 COPY backend/worker ./worker
+COPY backend/api/db.sql ./api/db.sql
 USER app
 EXPOSE 8102
 CMD ["uvicorn", "worker.main:app", "--host", "0.0.0.0", "--port", "8102"]
