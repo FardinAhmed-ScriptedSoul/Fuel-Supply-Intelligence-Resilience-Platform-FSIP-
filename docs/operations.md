@@ -61,7 +61,7 @@ The verified path is local Docker Compose; GitHub Actions also built and smoke-t
 The Render/Vercel plan in `deploy/render.yaml` is an untested blueprint. Do not deploy it as-is: managed Postgres does not automatically apply `backend/api/db.sql`. Before a hosted deployment:
 
 1. Review and validate the Render blueprint and provision Postgres, simulator, worker, and API services.
-2. Apply `backend/api/db.sql` to the managed database using a controlled one-off migration step before starting API/worker services.
+2. The API and worker apply `backend/api/db.sql` idempotently when they start; verify table creation and startup logs after the first deployment. A controlled one-off migration remains optional but is recommended for a stricter release gate.
 3. Configure `DATABASE_URL`, `SIM_BASE_URL`, `PREDICTOR_URL`, a strong `OPERATOR_TOKEN`, and the exact frontend `CORS_ORIGIN` in the hosting provider; configure Vercel's `VITE_API_URL` to the API URL.
 4. Configure GitHub Actions repository variables `PROD_API_URL`, `PROD_WORKER_URL`, and `PROD_WEB_URL` so the post-deploy verification job runs instead of being skipped.
 5. After merging to `main`, verify service `/health` endpoints, API `/api/state`, frontend loading, and the deploy-verification workflow before presenting the hosted URL.

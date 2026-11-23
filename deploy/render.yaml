@@ -49,5 +49,5 @@ services:
       - { key: DATABASE_URL, fromDatabase: { name: fuel-db, property: connectionString } }
       - { key: OPERATOR_TOKEN, sync: false }     # set in the Render dashboard; never commit
       - { key: CORS_ORIGIN, sync: false }        # the Vercel URL
-# NOTE: db.sql is applied by docker-entrypoint-initdb.d locally; Render's managed Postgres does not do that.
-# F-012 must add "apply schema on boot" (idempotent CREATE TABLE IF NOT EXISTS) or a one-off psql step.
+# db.sql is applied idempotently by both API and worker startup.
+# Managed Postgres is therefore initialized by the first service that connects.
