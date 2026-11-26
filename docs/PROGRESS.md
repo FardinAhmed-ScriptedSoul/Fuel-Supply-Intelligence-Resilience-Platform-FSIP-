@@ -1,3 +1,4 @@
+
 # Project progress
 
 Last updated: 2026-11-22. Current verification for the canonical FSIP repository.
@@ -37,15 +38,15 @@ Do not edit `.env`, stage ignored local instructions, expose secrets, or run `do
 
 ## Sprint log
 
-| Sprint | Status | Report |
-|---|---|---|
-| 1 | Historical report; not verified against this canonical checkout | [sprint-01.md](sprint-reports/sprint-01.md) |
-| 2 | Historical report; not verified against this canonical checkout | [sprint-02.md](sprint-reports/sprint-02.md) |
-| 3 | Historical report; not verified against this canonical checkout | [sprint-03.md](sprint-reports/sprint-03.md) |
-| 4 | Historical report; its live workflow is not verified against this canonical checkout | [sprint-04.md](sprint-reports/sprint-04.md) |
-| 5 | Historical report; its live fault/recovery results are not verified against this canonical checkout | [sprint-05.md](sprint-reports/sprint-05.md) |
-| 6 | Historical report; current CLI is read-only and does not reproduce the service-level benchmark | [sprint-06.md](sprint-reports/sprint-06.md) |
-| 7 | Historical report; cold start, clean clone, and chaos results are not verified against this canonical checkout | [sprint-07.md](sprint-reports/sprint-07.md) |
+| Sprint | Status                                                                                                         | Report                                     |
+| ------ | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| 1      | Historical report; not verified against this canonical checkout                                                | [sprint-01.md](sprint-reports/sprint-01.md) |
+| 2      | Historical report; not verified against this canonical checkout                                                | [sprint-02.md](sprint-reports/sprint-02.md) |
+| 3      | Historical report; not verified against this canonical checkout                                                | [sprint-03.md](sprint-reports/sprint-03.md) |
+| 4      | Historical report; its live workflow is not verified against this canonical checkout                           | [sprint-04.md](sprint-reports/sprint-04.md) |
+| 5      | Historical report; its live fault/recovery results are not verified against this canonical checkout            | [sprint-05.md](sprint-reports/sprint-05.md) |
+| 6      | Historical report; current CLI is read-only and does not reproduce the service-level benchmark                 | [sprint-06.md](sprint-reports/sprint-06.md) |
+| 7      | Historical report; cold start, clean clone, and chaos results are not verified against this canonical checkout | [sprint-07.md](sprint-reports/sprint-07.md) |
 
 ## Five-minute status update
 
